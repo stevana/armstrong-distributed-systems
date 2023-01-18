@@ -533,17 +533,3 @@ get involved, or if you have have comments, suggestions or questions.
   properties to let this stuff work really well."
   [quote](https://youtu.be/OqsAGFExFgQ?t=2532) by Martin Thompson (Functional
   Conf, 2017).
-
-
-
-[^1]: It's a common misconception is that Erlang is about actors.
-
-  The actor model first presented in ["A Universal Modular Actor Formalism for
-  Artificial
-  Intelligence"](https://www.ijcai.org/Proceedings/73/Papers/027B.pdf) by Carl
-  Hewitt, Peter Bishop, Richard Steiger (1973) and refined by others over time,
-  e.g. see Gul Agha's [thesis](https://dspace.mit.edu/handle/1721.1/6952)
-  (1985).
-
-  Erlang first appeard later in 1986, but the Erlang developers were not aware
-  of the actor model.
