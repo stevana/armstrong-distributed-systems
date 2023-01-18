@@ -33,7 +33,7 @@ and they got bought up a couple of times but in the end Joe got fired in 2002.
 Shortly after, still in 2002, Joe starts writing his PhD thesis at the Swedish
 Institute of Computer Science (SICS). Joe was born 1950, so he was probably 52
 years old at this point. The topic of the thesis is *Making reliable distributed
-systems in the presence of software errors* and it was finsihed the year after
+systems in the presence of software errors* and it was finished the year after
 in 2003.
 
 It's quite an unusual thesis in many ways. For starters, most theses are written
@@ -52,7 +52,7 @@ which in Erlang are called *behaviours*.
 ## Behaviours
 
 I'll first explain in more detail what behaviours are, and then I'll come back
-to the point that they are more important than the idea of lightweight proceses.
+to the point that they are more important than the idea of lightweight processes.
 
 Erlang behaviours are like interfaces in, say, Java or Go. It's a collection of
 type signatures which can have multiple implementations, and once the programmer
@@ -65,7 +65,7 @@ type HasName interface {
         Name() string
 }
 
-// A generic function written against the inteface.
+// A generic function written against the interface.
 func Greet(n HasName) {
     fmt.Printf("Hello %s!\n", n.Name())
 }
@@ -77,7 +77,7 @@ func (_ *Joe) Name() string {
         return "Joe"
 }
 
-// Second implementation of the inteface
+// Second implementation of the interface.
 type Mike struct {}
 
 func (_ *Mike) Name() string {
@@ -169,9 +169,9 @@ Joe gives several arguments for why behaviour should be used (p. 157-158):
 
   1. The application programmer only has to provide the part of the code which
      defines the *semantics* (or "business logic") of their problem, while the
-     *infrastructure* code is provided atomatically be the behaviour;
+     *infrastructure* code is provided automatically be the behaviour;
 
-  2. The application programmer writes sequential code, all concurrecy is hidden
+  2. The application programmer writes sequential code, all concurrency is hidden
      away in the behaviour;
 
   3. Behaviours are written by experts, and based on years of experience and
@@ -247,7 +247,7 @@ the user log, keep track and display the last five error messages.
 The `gen_fsm` behavior has been renamed to `gen_statem` (for state machine)
 since thesis was written. It's very similar to `gen_server`, but more geared
 towards implementing protocols, which often are specified as state machines. I
-believe any `gen_server` can be impelmented as a `gen_statem` and vice versa so
+believe any `gen_server` can be implemented as a `gen_statem` and vice versa so
 we won't go into the details of `gen_statem`.
 
 ### Supervisor behaviour
@@ -325,7 +325,7 @@ systems. Joe uses the Ericsson AXD301 telephone switch example again (p. 191):
 > obtained was not documented.
 
 To put this in perspective, five nines (99.999%) reliability is considered good
-(5.26 minutes downtimes per year). "59% of Fortune 500 companies experience a
+(5.26 minutes of downtime per year). "59% of Fortune 500 companies experience a
 minimum of 1.6 hours of downtime per week", according to some
 [report](https://courseware.cutm.ac.in/wp-content/uploads/2020/06/Assessing-the-Financial-Impact-of-Downtime-UK.pdf)
 from a biased company. Notice per *year* vs per *week*, but as we don't know how
@@ -439,7 +439,7 @@ arrival time of that message, feeds the message to the receiving state machine,
 generates new arrival times for all output messages and puts them back into the
 priority queue, rinse and repeat. Was long as everything is deterministic and
 the arrival times are generated using a seed we can explore many different
-interleavings and get reproducable failures. It's also much faster than Jepsen,
+interleavings and get reproducible failures. It's also much faster than Jepsen,
 because messaging is done in-memory and we advance the clock to the arrival
 time, thereby triggering any timeouts without having to wait for them.
 
