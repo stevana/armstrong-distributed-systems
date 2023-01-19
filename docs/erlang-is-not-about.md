@@ -169,7 +169,7 @@ Joe gives several arguments for why behaviour should be used (p. 157-158):
 
   1. The application programmer only has to provide the part of the code which
      defines the *semantics* (or "business logic") of their problem, while the
-     *infrastructure* code is provided automatically be the behaviour;
+     *infrastructure* code is provided automatically by the behaviour;
 
   2. The application programmer writes sequential code, all concurrency is hidden
      away in the behaviour;
@@ -464,8 +464,7 @@ building an airplane easier. Both lets you test your system under extreme
 conditions, such as unreliable networking or power loss, before they happen in
 "production". Furthermore, this simulator can be generic in, or parametrised by,
 behaviours. Which means that the developer gets it for free while the complexity
-of the simulator is hidden away from, just like the concurrent code of
-`gen_server`!
+of the simulator is hidden away, just like the concurrent code of `gen_server`!
 
 FoundationDB is a good example of simulation testing working, as witnessed by
 this [tweet](https://twitter.com/aphyr/status/405017101804396546) where somebody
@@ -546,9 +545,9 @@ questions.
 
 [^1]: It's a common misconception is that Erlang is about actors.
 
-    The actor model first presented in ["A Universal Modular Actor Formalism for
+    The actor model first presented in [*A Universal Modular Actor Formalism for
     Artificial
-    Intelligence"](https://www.ijcai.org/Proceedings/73/Papers/027B.pdf) by Carl
+    Intelligence*](https://www.ijcai.org/Proceedings/73/Papers/027B.pdf) by Carl
     Hewitt, Peter Bishop, Richard Steiger (1973) and refined by others over time,
     e.g. see Irene Greif's [thesis](https://dspace.mit.edu/handle/1721.1/57710)
     (1975) or Gul Agha's [thesis](https://dspace.mit.edu/handle/1721.1/6952)
