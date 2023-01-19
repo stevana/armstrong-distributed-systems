@@ -46,7 +46,7 @@ to achieve the original goal of building reliable distributed systems.
 I highly commend reading his
 [thesis](http://kth.diva-portal.org/smash/record.jsf?pid=diva2%3A9492&dswid=-1166)
 and forming your own opinion, but to me it's clear that the big idea there isn't
-lightweight processes and message passing, but rather the generic components
+lightweight processes[^1] and message passing, but rather the generic components
 which in Erlang are called *behaviours*.
 
 ## Behaviours
@@ -336,10 +336,10 @@ week.
 
 ### Application and release behaviours
 
-I'm not sure if application and release technically are behaviours, i.e.
-interfaces, in Erlang but they are part of the same chapter as the other
-behaviours in the thesis and they do provide a clear structure which is a trait
-of the other behaviours.
+I'm not sure if `application` and `release` technically are behaviours, i.e.
+interfaces. They are part of the same chapter as the other behaviours in the
+thesis and they do provide a clear structure which is a trait of the other
+behaviours though, so we'll include them in the discussion.
 
 So far we've presented behaviours from the bottom up. We started with "worker"
 behaviours `gen_server`, `gen_statem` and `gen_event` which together capture the
@@ -384,7 +384,7 @@ Lets start with `gen_server`. I like to think its interface signature as being:
 Input -> State -> (State, Output)
 ```
 
-That's it take some input, it's current state and produces a pair of the new
+That's it takes some input, its current state and produces a pair of the new
 updated state and an output.
 
 How do we turn this sequential signature into something that can handle
@@ -393,7 +393,8 @@ requests into `Input`s and puts them on a queue, have an event loop which pops
 inputs from the queue and feeds it to the sequential implementation, then
 writing the output back to the client response. It wouldn't be difficult to
 generalise this to be able to handle multiple `gen_server`s at the same time, by
-giving each a name and let the request include the name as well.
+giving each a name and let the request include the name in addition to the
+input.
 
 `gen_event` could be implemented by allowing registration of callbacks to
 certain types of event on the queue.
@@ -405,7 +406,8 @@ bit more complicated if the supervisor is not running on the same computer as
 the `gen_server`.
 
 I haven't thought about `application` and `release`s much yet, but given that
-deployment and upgrades are difficult problems they seem important.
+configuration, deployment and upgrades are difficult problems they seem
+important.
 
 ## Correctness of behaviours
 
@@ -437,28 +439,33 @@ The idea being that the simulator keeps track of a priority queue of messages
 sorted by their arrival time, it pops a message, advances the clock to the
 arrival time of that message, feeds the message to the receiving state machine,
 generates new arrival times for all output messages and puts them back into the
-priority queue, rinse and repeat. Was long as everything is deterministic and
-the arrival times are generated using a seed we can explore many different
+priority queue, rinse and repeat. As long as everything is deterministic and the
+arrival times are generated using a seed we can explore many different
 interleavings and get reproducible failures. It's also much faster than Jepsen,
 because messaging is done in-memory and we advance the clock to the arrival
 time, thereby triggering any timeouts without having to wait for them.
 
 We used to say that programs of this state machine type where written in
-"network normal form", because it made the simulator much easier to implement.
-We also conjectured that every program which can receive and send stuff over the
-network can be refactored into this shape.
+"network normal form", and conjectured that every program which can receive and
+send stuff over the network can be refactored into this shape[^2]. Even if we
+had a proof, "network normal form" always felt a bit arbitrary. But then I read
+Joe's thesis and realised that `gen_server` and `gen_statem` basically have the
+same type, so I stopped being concerned about it. As I think that if a structure
+is found to be useful by different people, then it's usually a sign that it
+isn't arbitrary.
 
-Even if we had a proof, "network normal form" always felt a bit arbitrary. But
-then I read Joe's thesis and realised that `gen_server` and `gen_statem` are
-basically the same thing, so I stopped being concerned about it.
+Anyway, in, at least, one of Joe's [talks](https://youtu.be/cNICGEwmXLU?t=1439)
+he mentions how difficult it's to correctly implement distributed leader
+election.
 
-In, at least, one of Joe's [talks](https://youtu.be/cNICGEwmXLU?t=1439) he
-mentions how difficult it's to correctly implement distributed leader election.
-
-I believe this problem is made much easier if the developer is given access to a
-simulator, and this simulator can be generic in, or parametrised by, behaviours
--- i.e. the complexity of the simulator is hidden away from the developer, just
-like the concurrent part of `gen_server` is.
+I believe this is a problem that would be greatly simplified by having access to
+a simulator. A bit like I'd imagine having access to a wind tunnel would make
+building an airplane easier. Both lets you test your system under extreme
+conditions, such as unreliable networking or power loss, before they happen in
+"production". Furthermore, this simulator can be generic in, or parametrised by,
+behaviours. Which means that the developer gets it for free while the complexity
+of the simulator is hidden away from, just like the concurrent code of
+`gen_server`!
 
 FoundationDB is a good example of simulation testing working, as witnessed by
 this [tweet](https://twitter.com/aphyr/status/405017101804396546) where somebody
@@ -467,10 +474,10 @@ asked Kyle "aphyr" Kingsbury to Jepsen test FoundationDB:
 > “haven’t tested foundation[db] in part because their testing appears to be
 > waaaay more rigorous than mine.”
 
-Formal verification is also made much easier if the program is written a state
+Formal verification is also made easier if the program is written a state
 machine. Basically all of Lamport's model checking
 [work](https://www.microsoft.com/en-us/research/publication/computation-state-machines/)
-with TLA+ assumes that the program is a state machine. Also more recently
+with TLA+ assumes that the specification is a state machine. Also more recently
 Kleppmann has
 [shown](https://lawrencecpaulson.github.io/2022/10/12/verifying-distributed-systems-isabelle.html)
 how to exploit the state machine structure to do proof by (structural) induction
@@ -485,8 +492,9 @@ have.
 
 There are a bunch of related ideas that I have started working on:
 
-  * Stealing ideas from Martin Thompson's work on the LMAX Disruptor and aeron
-    to make the event loop, on top of which the behaviours run, faster;
+  * Stealing ideas from Martin Thompson's work on the LMAX Disruptor and
+    [aeron](https://github.com/real-logic/aeron) to make a fast event loop, on
+    top of which the behaviours run;
   * Enriching the state machine type with [async
     I/O](https://github.com/stevana/coroutine-state-machines);
   * How to implement supervisors in more detail;
@@ -494,8 +502,9 @@ There are a bunch of related ideas that I have started working on:
 
 I hope to write about these things separately at some later point.
 
-Feel free to get in touch, if you find any of this interesting and would like to
-get involved, or if you have have comments, suggestions or questions.
+Meanwhile feel free to get in touch, if you find any of this interesting and
+would like to get involved, or if you have have comments, suggestions or
+questions.
 
 ## See also
 
@@ -510,8 +519,8 @@ get involved, or if you have have comments, suggestions or questions.
     - [`supervisor`](https://www.erlang.org/doc/man/supervisor.html);
     - [`application`](https://www.erlang.org/doc/man/application.html);
     - [release](https://www.erlang.org/doc/design_principles/release_structure.html).
-* [Hewitt, Meijer and Szyperski: The Actor Model (everything you wanted to
-  know...)](https://youtube.com/watch?v=7erJ1DV_Tlo) (2012).
+* [Hewitt, Meijer and Szyperski: The Actor Model (everything you wanted to know,
+  but were afraid to ask)](https://youtube.com/watch?v=7erJ1DV_Tlo) (2012);
 * Erlang the [movie](https://www.youtube.com/watch?v=xrIjfIjssLE) (1990);
 * [Systems that run forever self-heal and
   scale](https://www.youtube.com/watch?v=cNICGEwmXLU) by Joe Armstrong (Strange
@@ -533,3 +542,30 @@ get involved, or if you have have comments, suggestions or questions.
   properties to let this stuff work really well."
   [quote](https://youtu.be/OqsAGFExFgQ?t=2532) by Martin Thompson (Functional
   Conf, 2017).
+
+
+[^1]: It's a common misconception is that Erlang is about actors.
+
+    The actor model first presented in ["A Universal Modular Actor Formalism for
+    Artificial
+    Intelligence"](https://www.ijcai.org/Proceedings/73/Papers/027B.pdf) by Carl
+    Hewitt, Peter Bishop, Richard Steiger (1973) and refined by others over time,
+    e.g. see Irene Greif's [thesis](https://dspace.mit.edu/handle/1721.1/57710)
+    (1975) or Gul Agha's [thesis](https://dspace.mit.edu/handle/1721.1/6952)
+    (1985).
+
+    Erlang first appeard later in 1986, but the Erlang developers were [not
+    aware](https://erlang.org/pipermail/erlang-questions/2014-June/079794.html) of
+    the actor model. In fact Robert Virding, one of the original Erlang designers,
+    [claims](https://erlang.org/pipermail/erlang-questions/2014-June/079865.html)
+    that it knowing about the actor model might even have slowed them down.
+
+    Carl Hewitt has a paper called [*Actor Model of Computation: Scalable Robust
+    Information Systems*](https://arxiv.org/abs/1008.1459) (2015) which documents
+    the differences between Erlang's processes and the actor model.
+
+[^2]: The intuition being that since every program using the state monad can be
+    rewritten to a normal form where a single `read`/`get` followed by a single
+    `write`/`put`, it seems reasonable to assume that something similar would
+    work for `recv` and `send` over the network. I forget the reference for the
+    state monad normal form, either Plotkin and Power or Uustalu?
