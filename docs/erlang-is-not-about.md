@@ -535,6 +535,9 @@ questions.
 * [Why Do Computers Stop and What Can Be Done About
   It?](https://www.hpl.hp.com/techreports/tandem/TR-85.7.pdf) by Jim Gray
   (1985);
+* The supervision trees chapter of [*Adopting
+  Erlang*](https://adoptingerlang.org/docs/development/supervision_trees/)
+  (2019);
 * "If there's one thing I'd say to the Erlang folks, it's you got the stuff
   right from a high-level, but you need to invest in your messaging
   infrastructure so it's super fast, super efficient and obeys all the right
@@ -559,9 +562,9 @@ questions.
     [claims](https://erlang.org/pipermail/erlang-questions/2014-June/079865.html)
     that it knowing about the actor model might even have slowed them down.
 
-    Carl Hewitt has a paper called [*Actor Model of Computation: Scalable Robust
-    Information Systems*](https://arxiv.org/abs/1008.1459) (2015) which documents
-    the differences between Erlang's processes and the actor model.
+    Carl Hewitt has written a paper called [*Actor Model of Computation: Scalable
+    Robust Information Systems*](https://arxiv.org/abs/1008.1459) (2015) which
+    documents the differences between Erlang's processes and the actor model.
 
 [^2]: The intuition being that since every program using the state monad can be
     rewritten to a normal form where a single `read`/`get` followed by a single
