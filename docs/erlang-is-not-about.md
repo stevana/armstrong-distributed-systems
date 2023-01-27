@@ -362,7 +362,7 @@ lightweight processes and message passing by themselves that make Erlang great
 for building reliable systems.
 
 At best one might be able to claim that lightweight processes and supervisors
-are the key mechanisms at play, but I think it would be more honest to recognise
+are the key mechanisms at play[^2], but I think it would be more honest to recognise
 the structure that behaviours provide and how that ultimately leads to reliable
 software.
 
@@ -447,7 +447,7 @@ time, thereby triggering any timeouts without having to wait for them.
 
 We used to say that programs of this state machine type where written in
 "network normal form", and conjectured that every program which can receive and
-send stuff over the network can be refactored into this shape[^2]. Even if we
+send stuff over the network can be refactored into this shape[^3]. Even if we
 had a proof, "network normal form" always felt a bit arbitrary. But then I read
 Joe's thesis and realised that `gen_server` and `gen_statem` basically have the
 same type, so I stopped being concerned about it. As I think that if a structure
@@ -566,7 +566,16 @@ questions.
     Robust Information Systems*](https://arxiv.org/abs/1008.1459) (2015) which
     documents the differences between Erlang's processes and the actor model.
 
-[^2]: The intuition being that since every program using the state monad can be
+[^2]: Scala's Akka seems to be of this opinion. They got something they call
+    "actors", not to be confused with the actor model as per footnote 1, and
+    obligatory supervisors trees. They don't appear to have any analogues of the
+    other Erlang behaviours though.
+
+    Confusingly Akka has a concept called
+    ["behavior"](https://doc.akka.io/docs/akka/current/general/actors.html#behavior),
+    but it has nothing to do with Erlang behaviours.
+
+[^3]: The intuition being that since every program using the state monad can be
     rewritten to a normal form where a single `read`/`get` followed by a single
     `write`/`put`, it seems reasonable to assume that something similar would
     work for `recv` and `send` over the network. I forget the reference for the
