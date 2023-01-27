@@ -21,10 +21,10 @@ become widespread. I suppose they were already dealing with "internet scale"
 traffic, i.e. hundreds of millions of users, with stricter SLAs than most
 internet services provide today. So in a sense they were ahead of their time.
 
-In 1998 Ericsson decided to ban all use of Erlang. The people responsible for
-developing it argued that if they were going to ban it, then they might as well
-open source it. Which Ericsson did and shortly after the whole team working on
-Erlang quit and started their own company.
+In 1998 Ericsson decided to ban all use of Erlang[^0]. The people responsible
+for developing it argued that if they were going to ban it, then they might as
+well open source it. Which Ericsson did and shortly after the whole team working
+on Erlang quit and started their own company.
 
 One of these people was Joe Armstrong, which also was one of the main people
 behind the design and implementation of Erlang. The company was called Bluetail
@@ -545,6 +545,25 @@ questions.
   [quote](https://youtu.be/OqsAGFExFgQ?t=2532) by Martin Thompson (Functional
   Conf, 2017).
 
+
+[^0]: From Joe Armstrong's thesis (p. 6):
+
+    > In February 1998 Erlang was banned for new product development within
+    > Ericsson—the main reason for the ban was that Ericsson wanted to be a consumer
+    > of sodware technologies rather than a producer.
+
+    From Bjarne Däcker's thesis (2000, p. 37):
+
+    > In February 1998, Erlang was banned within Ericsson Radio AB (ERA) for new
+    > product projects aimed for external customers because:
+    >
+    > “The selection of an implementation language implies a more long-term
+    > commitment than selection of processors and OS, due to the longer life cycle
+    > of implemented products. Use of a proprietary language, implies a continued
+    > effort to maintain and further develop the support and the development
+    > environment. It further implies that we cannot easily benefit from, and find
+    > synergy with, the evolution following the large scale deployment of globally
+    > used languages.”
 
 [^1]: It's a common misconception is that Erlang is about actors.
 
