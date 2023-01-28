@@ -23,8 +23,8 @@ internet services provide today. So in a sense they were ahead of their time.
 
 In 1998 Ericsson decided to ban all use of Erlang[^0]. The people responsible
 for developing it argued that if they were going to ban it, then they might as
-well open source it. Which Ericsson did and shortly after the whole team working
-on Erlang quit and started their own company.
+well open source it. Which Ericsson did and shortly after most of the team that
+created Erlang quit and started their own company.
 
 One of these people was Joe Armstrong, which also was one of the main people
 behind the design and implementation of Erlang. The company was called Bluetail
