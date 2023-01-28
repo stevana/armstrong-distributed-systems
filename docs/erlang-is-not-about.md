@@ -11,7 +11,7 @@ bigger insight to be had, and in this post I'd like to share it with you.
 ## Background
 
 Erlang has an interesting history. If I understand things correctly, it started
-of as a Prolog library for building reliable distributed systems, morphed into a
+off as a Prolog library for building reliable distributed systems, morphed into a
 Prolog dialect, before finally becoming a language in its own right.
 
 The goal seemed to have always been to solve the problem of building reliable
