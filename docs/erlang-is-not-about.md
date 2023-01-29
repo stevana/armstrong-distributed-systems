@@ -298,7 +298,7 @@ example, `one_for_all` where if one process fails then the supervisor restarts
 all of its children.
 
 If we also consider that supervisors can supervise supervisors, which are not
-necessarily running on the same computer, then I hope that you get an idea of
+necessarily running on the same computer, then I hope that you get an idea of how
 powerful this behaviour can be. And, no, this isn't "just Kubernetes", because
 it's at the thread/lightweight process level rather than docker container level.
 
