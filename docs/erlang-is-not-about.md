@@ -384,7 +384,7 @@ Lets start with `gen_server`. I like to think its interface signature as being:
 Input -> State -> (State, Output)
 ```
 
-That's it takes some input, its current state and produces a pair of the new
+It takes some input, its current state and produces a pair of the new
 updated state and an output.
 
 How do we turn this sequential signature into something that can handle
