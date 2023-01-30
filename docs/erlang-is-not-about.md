@@ -588,7 +588,7 @@ questions.
     aware](https://erlang.org/pipermail/erlang-questions/2014-June/079794.html) of
     the actor model. In fact Robert Virding, one of the original Erlang designers,
     [claims](https://erlang.org/pipermail/erlang-questions/2014-June/079865.html)
-    that it knowing about the actor model might even have slowed them down.
+    that knowing about the actor model might even have slowed them down.
 
     Carl Hewitt has written a paper called [*Actor Model of Computation: Scalable
     Robust Information Systems*](https://arxiv.org/abs/1008.1459) (2015) which
