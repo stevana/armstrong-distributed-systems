@@ -104,7 +104,7 @@ interface `HasName`.
 
 ### Generic server behaviour
 
-Next lets have look at a more complicated example in Erlang taken from Joe's
+Next lets have a look at a more complicated example in Erlang taken from Joe's
 thesis (p. 136). It's a key-value store where we can `store` a key value pair or
 `lookup` the value of a key, the `handle_call` part is the most interesting:
 
