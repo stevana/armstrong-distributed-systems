@@ -43,7 +43,7 @@ Whereas in Joe's case he has been working professionally on this topic since the
 merely a presentation of the ideas that underpin Erlang and how they used Erlang
 to achieve the original goal of building reliable distributed systems.
 
-I highly commend reading his
+I highly recommend reading his
 [thesis](http://kth.diva-portal.org/smash/record.jsf?pid=diva2%3A9492&dswid=-1166)
 and forming your own opinion, but to me it's clear that the big idea there isn't
 lightweight processes[^1] and message passing, but rather the generic components
