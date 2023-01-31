@@ -1,0 +1,369 @@
+---
+status: first draft (please don't share)
+---
+
+# Implementing Erlang's behaviours without using lightweight processes
+
+The other day I made the
+[claim](https://github.com/stevana/armstrong-distributed-systems/blob/main/docs/erlang-is-not-about.md)
+that the big idea in Erlang isn't lightweight processes and message passing but
+rather its *behaviours*[^1].
+
+In short: Erlang's six behaviours, `gen_server`, `gen_statem`, `gen_event`,
+`supervisor`, `application` and `release`, are building blocks for reliable
+distributed systems. They abstract away the repetitive, difficult low-level and
+concurrent details and let the user focus on the semantics of their problem.
+
+Many comments, including [one](https://news.ycombinator.com/item?id=34558745)
+from Robert Virding[^2], basically claim that one *needs* lightweight processes
+and message passing in order to implement behaviours.
+
+I don't think that's true, and I even sketched an implementation towards the end
+of that post.
+
+Since this appears to have been overlooked, or perhaps wasn't clear enough in
+the original post, I decided to write a separate post expanding on about how to
+implement behaviours without lightweight processes and message passing.
+
+My goal isn't to reimplement OTP, I'm merely understand the fundamental ideas
+behind behaviours, so that we can build upon and improve them.
+
+I think this is important because the understanding of behaviour isn't well
+established, unlike the idea of lightwight process and message passing.
+
+Leading to people stealing lightweight processes and message passing, while
+failing to copy behaviours -- which, from my understanding of Joe's thesis, are
+the key ingredients in being able to write reliable systems[^3].
+
+I'll use pseudo code in order to try to be accessible to the wider community.
+This pseudo language might have some features that your favorite language
+doesn't have, but don't dispair I'll try to provide workarounds in the
+footnotes.
+
+## Lightweight processes and message passing
+
+Let's start off by defining what we mean by lightweight processes and message
+passing.
+
+When Joe Armstrong [interviewed](https://youtu.be/fhOHn9TClXY?t=2236) Alan Kay
+in 2017, Joe explained how Erlang came to be.
+
+Joe says he was playing around with
+[Smalltalk](https://en.wikipedia.org/wiki/Smalltalk) on his Sun workstation, and
+it was so slow that he'd go for a coffee break while it was garbage collecting.
+
+Joe even ordered the first Tektronix Smalltalk
+[Workstation](https://randoc.wordpress.com/2018/07/20/tektronix-smalltalk-workstations-4400-and-4300-series/)
+in hope of it making things faster. While waiting for it to arrive a guy called
+Roger Skagerlöf asked Joe if he had seen Prolog. Joe had not, so Roger pulled
+him into his office and showed him how to implement what Joe was trying to do in
+Smalltalk in Prolog instead.
+
+Joe was interested in message passing, which also was the [big
+idea](http://lists.squeakfoundation.org/pipermail/squeak-dev/1998-October/017019.html)
+in Smalltalk according to Alan.
+
+Biology analogy -- cells communicating
+
+[Simula](https://dl.acm.org/doi/abs/10.1145/365813.365819) and discrete-event
+[simulation](https://en.wikipedia.org/wiki/Simula#Simulation)
+
+And that's the story of how Erlang started, Joe implemented his message passing
+ideas that he got from Smalltalk as Prolog library.
+
+Kerstin Ödling, one of the first Erlang user, wanted to program MD110 telephone
+switch, fishbone diagrams (finite state machine without cycles), execute lots of
+them in parallel
+  - https://vimeo.com/97329186 (18:00)
+
+![Kerstin's fishbone diagrams](images/fishbone-diagram.png)
+
+Kerstin's fishbone diagram in the Prolog library version of Erlang:
+
+![](images/prolog-erlang.png)
+
+These messages are sent between "processes", or lightweight threads (as opposed
+to heavyweight OS-level threads). The processes are isolated, in that if one
+fails somehow it shouldn't affect the other processes.
+
+Not sharing memory and therefor not be able to corrupt each others memory. This
+implies no global variables.
+
+But also not be able to hog all CPU in case the process ends up getting stuck in
+an infinite loop.
+
+* Pre-emptive scheduling
+
+Having explained what lightweight processes and message passing is in Erlang,
+lets have a look at similar concepts in other languages: Scala's Akka, Go
+channels, ["Cloud Haskell"](https://haskell-distributed.github.io/),
+[Rust](https://doc.rust-lang.org/book/ch16-02-message-passing.html), the actor
+model...
+
+While there are technical differences between all these implementations, for the
+purpose of this article we shall group them all together and say that they are
+implementations of lightweight processes and message passing.
+
+## Generic server
+
+Now that we know how Erlang got its lightweight processes and message passing,
+lets implement behaviours without them.
+
+Let's start with the perhaps most useful worker behaviour, `gen_server`. We said
+in the previous post that behaviours are interfaces, so lets define that first:
+
+> interface `GenServer` parametrised by the types for *state*, *input* and *output*
+> and requiring the functions:
+>   * `Step` that takes an *input* and the current *state* and returns the updated
+>     *state* and an *output*;
+>   * `Init` that returns the initial *state*;
+>   * `Terminate` which takes the current *state* and returns nothing.
+
+So the user must implement these three (sequential) functions in order to get a
+concurrent server. The concurrent code is written against (or parametrised by)
+this interface and will work for any instance of this interface.
+
+Let's implement a counter as an example. The counter has an integer as its state
+and it can be incremented, its current value can be read, or it can be reset:
+
+> data type `State` is an `Integer`.
+> data type `Input` is an enum with the tags `Increment`, `Read` and `Reset`.
+
+The output of the counter when incrementing and resetting is an acknowledgement
+while reading the current value returns an integer.
+
+> data type `Output` is a tagged union[^4] with the tags `Ack` and `Value` where
+> `Value` has an `Integer` parameter.
+
+The implementation of the `Step` function is a completely sequential program:
+
+> function `Step` from *input* and *state* is defined by case analysis on *input*:
+>   * if `Increment`, then the new state is the old *state* + 1 and the output is `Ack`;
+>   * if `Read`, then the new state is the old *state* and the output is `Value` with
+>     the old *state* as parameter;
+>   * if `Reset`, then check what the current state is: if it's 0 then crash
+>     (deliberate bug), otherwise the new state is 0 and the output is `Ack`.
+
+We initialise our counter as follows:
+
+> function `Init` checks if an previous state of the counter has been saved to
+> the disk. If that's the case then use the saved value as the intial state
+> otherwise start with 0.
+
+Lastly we terminate our counter as follows:
+
+> function `Terminate` takes the current *state* and saves it to disk.
+
+The three functions, `Step`, `Init` and `Terminate`, together implement the
+`GenServer` interface.
+
+## The concurrent infrastructure for a single generic server
+
+Before we make things more complicated by introducing other behaviours than
+`gen_server`, lets see how we can get the concurrent server from merely using
+our sequential `GenServer` interface.
+
+> data type `Event` is a tagged union... XXX
+
+> function `eventLoop` is parametrised by *genServer* of type `GenServer` and is
+> defined in steps:
+>   1. XXX:...
+
+* Example interaction with our gen server
+
+Hopefully by now I've managed to convince you that we can, at least, implement
+the `gen_server` behaviour without using lightweight processes or message
+passing.
+
+* event loop (or game loop), event-driven program, reactor pattern are all
+  different names for the same well known alternatives to lightweight
+  processes/threads
+
+* Determinstic (unlike lightweight processes, well there's
+  [PULSE](http://quviq.com/documentation/pulse/index.html), OCaml's eio and
+  Java's project Loom has deterministic scheduling I think)
+
+## Supervisor
+
+Next lets have a look at how we can add supervisors.
+
+For simplicity or supervisor tree may only have one child which has to be a generic server.
+
+In order to allow for multiple `GenServers` with different state, inputs and
+outputs we use existential types[^5]:
+
+```
+data SomeGenericServer: exists state, input, output.
+  SomeGenericServer(name: String, server: GenericServer<state, input, output>)
+```
+
+```
+data Supervisor: Supervisor(servers: List<{n: Name, server: SomeGenServer}>)
+```
+
+## The concurrent infrastructure for supervisor trees
+
+```
+eventLoop(sup: Supervisor):
+  queue := newBoundedConcurrentQueue(QUEUE_MAX_SIZE)
+  forever:
+    event := readQueue(queue)
+    server := sup.lookup(event.receiver)
+    (state', output) := server.step(event.inp)
+```
+
+## Performance and generic event manager
+
+In a [talk](https://youtu.be/OqsAGFExFgQ?t=2532) at Functional Conf 2017, Martin
+Thompson said:
+
+> "If there's one thing I'd say to the Erlang folks, it's you got the stuff
+> right from a high-level, but you need to invest in your messaging
+> infrastructure so it's super fast, super efficient and obeys all the right
+> properties to let this stuff work really well."
+
+Who is this guy and why did he say that?
+
+Martin Thompson is perhaps best known for introducing the concept of *mechanical
+sympathy* in the context of computers.
+
+The term was originally coined by the racing driver [Jackie "Flying Scot"
+Stewart](https://en.wikipedia.org/wiki/Jackie_Stewart), who said:
+
+> You don't have to be an engineer to be be a racing driver, but you do have to
+> have Mechanical Sympathy.
+
+What he meant was that understanding how the car works makes you a better
+driver. Martin makes the analogous claim that knowing how modern CPUs work will
+make you a better programmer.
+
+Martin has given several full talks on the topic, so I'll not attempt to repeat all that here
+
+* short version: cpu caches: temporal, spatial, striding https://youtu.be/fDGWWpHlzvw?t=1264
+
+* queue's don't have mechanical sympathy, another (perhaps better known?)
+  Martin, Martin Fowler as
+  [written](https://martinfowler.com/articles/lmax.html?ref=wellarchitected#QueuesAndTheirLackOfMechanicalSympathy)
+  about this
+
+* LMAX disruptor pipeline
+
+* One worker behaviour per CPU core = parallelism, no copying due to disruptor?
+
+* Built-in support for back-pressure, unlike in Erlang where you can run out of
+  memory due to the fact that the mailboxes are
+  [unbounded](https://github.com/ferd/pobox)
+
+* determinism?
+
+* gen_event -- pubsub / broadcast
+
+* Multicore OCaml's [eio](https://github.com/ocaml-multicore/eio)
+  - determinism
+  - io_uring
+* TigerBeetleDB's [event loop](https://tigerbeetle.com/blog/a-friendly-abstraction-over-iouring-and-kqueue/)
+  - also determinism and io_uring
+
+* What about the original problem of many concurrent state machines?
+
+## Application and release
+
+Recall that an `application` is a `supervisor` tree together with whatever else
+the application needs that is not the code itself, e.g. graphical assets,
+configuration files, etc.
+
+The final behaviour `release` is one or more `application`s together with a way
+of upgrading from the currently running release and a way of rolling back in
+case the upgrade fails.
+
+But they do provide tructure in areas where most programming languages don't
+give you anything: configuration, deployment and upgrades
+
+Joe has [talked](https://youtu.be/h8nmzPh5Npg?t=960) how modules can evolve over
+time, how git is useless... while this isn't part of Erlang's `release`s, it
+could still be interesting to ponder.
+
+* release?
+  - upgrades
+    + versioning messages and always supporting previous version?
+  - configuration
+  - overcoming "container and yaml hell"?
+  - hot code swapping
+  - ssh access to remote machines in case of multi node deployment?
+
+The last two behaviours `application` and `release` clearly don't have anything
+to do with lightweigt processes and message passing.
+
+* packaging, dependency management, dependency hell, nix...
+
+## Summary and contributing
+
+* Hopefully it's clear by now that `gen_server`, `gen_event` and `supervisor`
+  don't *have* to be implemented using lightweight processes and message
+  passing.
+
+* In fact implementing it the way outlined above might even have performance
+  benefits (benchmarks?)
+
+* Many things missing. Far from reimplementing OTP, but that's not the point. I
+  want to understand the ideas behind OTP so that we one day can implement
+  something better!
+
+* If one worker behaviour per CPU/core then how does supervision work?
+
+* remote supervisors, how is this implemented in Erlang actually? What happens
+  if nodes get partitioned? Heartbeats?
+
+* pre-emptive? Less important when we are not spawning processes left and right?
+  One worker per CPU/core.
+
+* Erlang supports upgrading/hot code swapping a behaviour while it's running,
+  but what about upgrading clustered Erlang nodes without downtime?
+
+
+## See also
+
+* [The Erlang Runtime System](https://blog.stenmans.org/theBeamBook/) by Erik
+  Stenman;
+
+* Alan Kay on Erlang being an [object oriented programming
+  language](https://www.quora.com/What-does-Alan-Kay-think-about-Joe-Armstrong-claiming-that-Erlang-might-be-the-only-object-oriented-language-and-also-his-thesis-supervisor-s-claim-that-Erlang-is-extremely-object-oriented);
+
+* Martin Thompson's
+  [talk](https://www.infoq.com/presentations/mechanical-sympathy/) on
+  *Mechanical Sympathy* (2013);
+
+* [*LMAX - How to Do 100K TPS at Less than 1ms
+  Latency*](https://www.infoq.com/presentations/LMAX/) by Martin Thompson (QCon
+  2010).
+
+
+[^1]: Technically behaviours are part of the [Open Telecom
+    Platform](https://en.wikipedia.org/wiki/Open_Telecom_Platform) (OTP).
+    According to
+    [Wikipedia](https://en.wikipedia.org/wiki/Erlang_(programming_language))
+    "the term Erlang is used interchangeably with Erlang/OTP", so we'll just say
+    Erlang.
+
+[^2]: One of the original designers and implementors of Erlang, as well as one
+    of the "actors" in [Erlang the
+    movie](https://www.youtube.com/watch?v=xrIjfIjssLE).
+
+[^3]: In fact I think many languages and libraries have been blinded by thinking
+    that lightweight threads *have* to be part of the solution in order to
+    achieve Erlang's robustness.
+
+    The example I'm most familiar with is ["Cloud
+    Haskell"](https://hackage.haskell.org/package/distributed-process).
+
+[^4]: Or enums and structs and potentially union types if your language of
+    choice doesn't have [sum types](https://en.wikipedia.org/wiki/Tagged_union).
+
+[^5]: If your language of choice doesn't support [existential
+    types](https://en.wikipedia.org/wiki/Type_system#Existential_types), then
+    you got the choice of being less generic or less well-typed. One way to be
+    less generic is to parametrise the supervisor type by the parameters of the
+    generic server, but that means that all your generic servers will have to
+    have the same parameters. Or you can be less well-typed by removing the
+    parameters from `GenServer` and simply use some generic but fixed type, like
+    type type of JSON objects.
