@@ -574,6 +574,10 @@ questions.
     > synergy with, the evolution following the large scale deployment of globally
     > used languages.”
 
+    Joe also says, in this [talk](https://vimeo.com/97329186) (34:30), that there
+    were two reasons for Erlang getting banned: 1) that it wasn't Java, and 2) that
+    it wasn't C++.
+
 [^1]: It's a common misconception is that Erlang is about actors.
 
     The actor model first presented in [*A Universal Modular Actor Formalism for
@@ -588,7 +592,7 @@ questions.
     aware](https://erlang.org/pipermail/erlang-questions/2014-June/079794.html) of
     the actor model. In fact Robert Virding, one of the original Erlang designers,
     [claims](https://erlang.org/pipermail/erlang-questions/2014-June/079865.html)
-    that it knowing about the actor model might even have slowed them down.
+    that knowing about the actor model might even have slowed them down.
 
     Carl Hewitt has written a paper called [*Actor Model of Computation: Scalable
     Robust Information Systems*](https://arxiv.org/abs/1008.1459) (2015) which
