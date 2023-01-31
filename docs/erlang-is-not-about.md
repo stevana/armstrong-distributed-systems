@@ -574,6 +574,10 @@ questions.
     > synergy with, the evolution following the large scale deployment of globally
     > used languages.”
 
+    Joe also says, in this [talk](https://vimeo.com/97329186) (34:30), that there
+    were two reasons for Erlang getting banned: 1) that it wasn't Java, and 2) that
+    it wasn't C++.
+
 [^1]: It's a common misconception is that Erlang is about actors.
 
     The actor model first presented in [*A Universal Modular Actor Formalism for
