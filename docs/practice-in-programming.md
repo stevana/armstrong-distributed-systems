@@ -116,3 +116,4 @@ status: Still in research (please don't share)
 
 * Any references in the same general (or completely opposite) direction would be
   appreciated!
+* [Coding dojos](https://codingdojo.org/practices/WhatIsCodingDojo/) are spaces specifically designed for _practicing_ 
