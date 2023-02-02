@@ -11,22 +11,29 @@ rather its *behaviours*[^1].
 
 In short: Erlang's six behaviours, `gen_server`, `gen_statem`, `gen_event`,
 `supervisor`, `application` and `release`, are building blocks for reliable
-distributed systems. They abstract away the repetitive, difficult low-level and
-concurrent details and let the user focus on the semantics of their problem.
+distributed systems. They abstract away the repetitive, difficult, low-level and
+concurrent details, and let the user focus on the semantics of their problem.
 
 Many comments, including [one](https://news.ycombinator.com/item?id=34558745)
 from Robert Virding[^2], basically claim that one *needs* lightweight processes
 and message passing in order to implement behaviours.
 
-I don't think that's true, and I even sketched an implementation towards the end
-of that post.
+Conceptually lightweight processes and message passing came before behaviours,
+as Robert points out.
 
-Since this appears to have been overlooked, or perhaps wasn't clear enough in
-the original post, I decided to write a separate post expanding on about how to
-implement behaviours without lightweight processes and message passing.
+I can imagine that perhaps Erlang's concurrency model makes it easier to
+implement behaviours.
 
-My goal isn't to reimplement OTP, I'm merely understand the fundamental ideas
-behind behaviours, so that we can build upon and improve them.
+But I don't think we can draw the conclusion that they are therefore *needed*
+for implementing behaviours (maybe they *were* needed in the special case of how
+Erlang evolved, but that's not my point, I'm talking about in *general*).
+
+My intuition is: there are other ways of doing concurrency than lightweight
+processes and message passing, a popular one is event-driven programming and
+perhaps it make sense to implement behaviours in that setting as well.
+
+My goal isn't to reimplement OTP, merely understand the fundamental ideas behind
+behaviours, so that we can build and improve upon them (outside of Erlang/OTP).
 
 I think this is important because the understanding of behaviour isn't well
 established, unlike the idea of lightwight process and message passing.
@@ -35,38 +42,79 @@ Leading to people stealing lightweight processes and message passing, while
 failing to copy behaviours -- which, from my understanding of Joe's thesis, are
 the key ingredients in being able to write reliable systems[^3].
 
-I'll use pseudo code in order to try to be accessible to the wider community.
-This pseudo language might have some features that your favorite language
-doesn't have, but don't dispair I'll try to provide workarounds in the
-footnotes.
-
 ## Lightweight processes and message passing
 
 Let's start off by defining what we mean by lightweight processes and message
 passing.
 
-When Joe Armstrong [interviewed](https://youtu.be/fhOHn9TClXY?t=2236) Alan Kay
-in 2017, Joe explained how Erlang came to be.
+To really understand a concept one needs to understand the context in which it
+was conceived.
 
-Joe says he was playing around with
-[Smalltalk](https://en.wikipedia.org/wiki/Smalltalk) on his Sun workstation, and
-it was so slow that he'd go for a coffee break while it was garbage collecting.
+When Joe Armstrong [interviewed](https://youtu.be/fhOHn9TClXY?t=2236) Alan Kay
+in 2017, Joe explained how Erlang [came to
+be](https://dl.acm.org/doi/10.1145/1238844.1238850).
+
+Joe says in the mid 1980s he was trying to improve the state of [programming
+telephony](https://en.wikipedia.org/wiki/Plain_old_telephone_service). This was
+before internet, but the telephone system had "services" and "features" so I
+suppose in a sense he was interested in improving what what we'd today call
+"backend development".
+
+At Ericsson, where he was working, they already had a proprietary programming
+language called
+[PLEX](https://en.wikipedia.org/wiki/PLEX_(programming_language)) which they
+used to program telephony. PLEX, which first appeared in the 70s, and the
+telephone hardware switches were a heavy influence on Erlang:
+
+  1. Process and their isolation from each other
+  2. Signals and ability to wait for them, i.e. message passing
+  3. Hot code swapping
+
+So the early inspiration for Erlang was to be a better version of PLEX and run
+on ordinary hardware.
+
+I suppose when Joe was looking around for programming languages that might fit
+the bill, he found Alan et al's [Smalltalk](https://en.wikipedia.org/wiki/Smalltalk).
+
+Alan said that the [big
+idea](http://lists.squeakfoundation.org/pipermail/squeak-dev/1998-October/017019.html)
+in Smalltalk is message passing after all.
+
+Alan, who did a BSc in mathematics and molecular biology, said:
+
+> I thought of objects being like biological cells and/or individual computers
+> on a network, only able to communicate with messages (so messaging came at the
+> very beginning -- it took a while to see how to do messaging in a programming
+> language efficiently enough to be useful).
+-- Alan Kay (http://userpage.fu-berlin.de/~ram/pub/pub_jf47ht81Ht/doc_kay_oop_en)
+
+(Small talk was also influenced by
+[Simula](https://dl.acm.org/doi/abs/10.1145/365813.365819), but I don't know
+anything about Simula so I won't go further down the rabbit hole at this point.
+I'd like to understand Simula better because apparently it was designed to
+enable continuous and discrete-event
+[simulation](https://en.wikipedia.org/wiki/Simula#Simulation) which is related
+to the kind of
+[testing](https://github.com/stevana/property-based-testing-stateful-systems-tutorial)
+that I care about.)
+
+The problem was that when Joe was playing around with Smalltalk on his Sun
+workstation, and it was so slow that he'd go for a coffee break while it was
+garbage collecting.
 
 Joe even ordered the first Tektronix Smalltalk
 [Workstation](https://randoc.wordpress.com/2018/07/20/tektronix-smalltalk-workstations-4400-and-4300-series/)
-in hope of it making things faster. While waiting for it to arrive a guy called
-Roger Skagerlöf asked Joe if he had seen Prolog. Joe had not, so Roger pulled
-him into his office and showed him how to implement what Joe was trying to do in
-Smalltalk in Prolog instead.
+in hope of it making things faster.
 
-Joe was interested in message passing, which also was the [big
-idea](http://lists.squeakfoundation.org/pipermail/squeak-dev/1998-October/017019.html)
-in Smalltalk according to Alan.
+Parallel to the Smalltalk experiments Joe was also developing an algebra for
+telephony (a domain specific language using mathematical notation).
 
-Biology analogy -- cells communicating
+While Joe was waiting for his Smalltalk machine to arrive, he got chatting with
+a guy called Roger Skagervall and showed him his algebra, Roger asked Joe if he
+had seen Prolog. Joe had not, so Roger pulled him into his office and showed him
+how to implement his algebra in Prolog.
 
-[Simula](https://dl.acm.org/doi/abs/10.1145/365813.365819) and discrete-event
-[simulation](https://en.wikipedia.org/wiki/Simula#Simulation)
+The Smalltalk machine arrived, but Joe didn't even plug it in...
 
 And that's the story of how Erlang started, Joe implemented his message passing
 ideas that he got from Smalltalk as Prolog library.
@@ -89,14 +137,19 @@ fails somehow it shouldn't affect the other processes.
 Not sharing memory and therefor not be able to corrupt each others memory. This
 implies no global variables.
 
-But also not be able to hog all CPU in case the process ends up getting stuck in
-an infinite loop.
+But also not be able to hog all CPU in case the process starts doing something
+that takes a very long time or ends up getting stuck in an infinite loop.
 
-* Pre-emptive scheduling
+That's why Erlang has pre-emptive scheduling, a process will be run until it
+gets stuck, waiting for a message or I/O, or it reaches some max running time,
+at which point it will be switched out and another process will be allowed to
+run. Hence even if a process is stuck in an infinite loop, it will not cause any
+other process to be stuck.
 
 Having explained what lightweight processes and message passing is in Erlang,
-lets have a look at similar concepts in other languages: Scala's Akka, Go
-channels, ["Cloud Haskell"](https://haskell-distributed.github.io/),
+lets just note that similar concepts in other languages: Scala's Akka, Go
+channels, Microsoft's [virtual actors](https://github.com/dotnet/orleans),
+["Cloud Haskell"](https://haskell-distributed.github.io/),
 [Rust](https://doc.rust-lang.org/book/ch16-02-message-passing.html), the actor
 model...
 
@@ -110,7 +163,12 @@ Now that we know how Erlang got its lightweight processes and message passing,
 lets implement behaviours without them.
 
 Let's start with the perhaps most useful worker behaviour, `gen_server`. We said
-in the previous post that behaviours are interfaces, so lets define that first:
+in the previous post that behaviours are interfaces, so lets define that first.
+
+I'll use pseudo code in order to try to be accessible to the wider community.
+This pseudo language might have some features that your favorite language
+doesn't have, but don't dispair I'll try to provide workarounds in the
+footnotes.
 
 > interface `GenServer` parametrised by the types for *state*, *input* and *output*
 > and requiring the functions:
@@ -163,7 +221,9 @@ Before we make things more complicated by introducing other behaviours than
 `gen_server`, lets see how we can get the concurrent server from merely using
 our sequential `GenServer` interface.
 
-> data type `Event` is a tagged union... XXX
+> data type `Event` is a tagged union with the tags:
+>   * `Input` with a `ByteString` parameter;
+>   * `Exit`.
 
 > function `eventLoop` is parametrised by *genServer* of type `GenServer` and is
 > defined in steps:
@@ -187,19 +247,21 @@ passing.
 
 Next lets have a look at how we can add supervisors.
 
-For simplicity or supervisor tree may only have one child which has to be a generic server.
+> data type `SomeServer` is a struct with the fields:
+>   * `name`   of type `String`;
+>   * `server` of type `GenServer` where the type parameters *state*, *input*,
+>     and *output* have been existenially quantified[^5];
+>   * `state`  of type *state*.
+>   * `decode` of function type `ByteString` to `Maybe` *input*;
+>   * `encode` of function type *output* to `ByteString`.
 
-In order to allow for multiple `GenServers` with different state, inputs and
-outputs we use existential types[^5]:
+> data type `Supervisor` is a recursive tagged union with the tags:
+>   * `Leaf` with a `SomeServer` parameter (or more generally any worker behaviour);
+>   * `Node` with a `RestartStrategy` parameter and a `List` of child
+>     `Supervisor`s parameter.
 
-```
-data SomeGenericServer: exists state, input, output.
-  SomeGenericServer(name: String, server: GenericServer<state, input, output>)
-```
-
-```
-data Supervisor: Supervisor(servers: List<{n: Name, server: SomeGenServer}>)
-```
+> data type `RestartStrategy` is an enum with the tags `OneForOne` and
+> `OneForAll`.
 
 ## The concurrent infrastructure for supervisor trees
 
@@ -276,8 +338,8 @@ The final behaviour `release` is one or more `application`s together with a way
 of upgrading from the currently running release and a way of rolling back in
 case the upgrade fails.
 
-But they do provide tructure in areas where most programming languages don't
-give you anything: configuration, deployment and upgrades
+But they do provide structure in areas where most programming languages don't
+give you anything: reconfiguration, deployment and upgrades.
 
 Joe has [talked](https://youtu.be/h8nmzPh5Npg?t=960) how modules can evolve over
 time, how git is useless... while this isn't part of Erlang's `release`s, it
@@ -309,7 +371,7 @@ to do with lightweigt processes and message passing.
   want to understand the ideas behind OTP so that we one day can implement
   something better!
 
-* If one worker behaviour per CPU/core then how does supervision work?
+* If one worker behaviour per CPU/core then how does supervision work? Links?
 
 * remote supervisors, how is this implemented in Erlang actually? What happens
   if nodes get partitioned? Heartbeats?
@@ -322,6 +384,12 @@ to do with lightweigt processes and message passing.
 
 
 ## See also
+
+* [A history of Erlang](https://dl.acm.org/doi/10.1145/1238844.1238850) paper
+  and talk (scroll down to "supplemental material") by Joe Armstrong (HOPL III,
+  2007);
+
+* [The Execution Model of APZ/PLEX](https://www.es.mdh.se/pdf_publications/663.pdf)
 
 * [The Erlang Runtime System](https://blog.stenmans.org/theBeamBook/) by Erik
   Stenman;
@@ -336,6 +404,12 @@ to do with lightweigt processes and message passing.
 * [*LMAX - How to Do 100K TPS at Less than 1ms
   Latency*](https://www.infoq.com/presentations/LMAX/) by Martin Thompson (QCon
   2010).
+
+* https://github.com/mitchellh/libxev
+
+* [Welcome to Lord of the io_uring](https://unixism.net/loti/index.html)
+
+* https://eli.thegreenplace.net/2017/concurrent-servers-part-1-introduction/
 
 
 [^1]: Technically behaviours are part of the [Open Telecom
