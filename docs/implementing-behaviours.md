@@ -4,7 +4,7 @@ status: first draft (please don't share)
 
 # Implementing Erlang's behaviours without using lightweight processes
 
-The other day I made the
+The other week I made the
 [claim](https://github.com/stevana/armstrong-distributed-systems/blob/main/docs/erlang-is-not-about.md)
 that the big idea in Erlang isn't lightweight processes and message passing but
 rather its *behaviours*[^1].
@@ -13,6 +13,10 @@ In short: Erlang's six behaviours, `gen_server`, `gen_statem`, `gen_event`,
 `supervisor`, `application` and `release`, are building blocks for reliable
 distributed systems. They abstract away the repetitive, difficult, low-level and
 concurrent details, and let the user focus on the semantics of their problem.
+
+In Joe's own words: "Behaviors in Erlang can be thought of as parameterizable
+higher-order parallel processes. They represent an extension of conventional
+higher-order functions (like map, fold etc) into a concurrent domain."
 
 Many comments, including [one](https://news.ycombinator.com/item?id=34558745)
 from Robert Virding[^2], basically claim that one *needs* lightweight processes
@@ -88,7 +92,7 @@ Alan, who did a BSc in mathematics and molecular biology, said:
 > language efficiently enough to be useful).
 -- Alan Kay (http://userpage.fu-berlin.de/~ram/pub/pub_jf47ht81Ht/doc_kay_oop_en)
 
-(Small talk was also influenced by
+(Smalltalk was also influenced by
 [Simula](https://dl.acm.org/doi/abs/10.1145/365813.365819), but I don't know
 anything about Simula so I won't go further down the rabbit hole at this point.
 I'd like to understand Simula better because apparently it was designed to
@@ -116,19 +120,30 @@ how to implement his algebra in Prolog.
 
 The Smalltalk machine arrived, but Joe didn't even plug it in...
 
-And that's the story of how Erlang started, Joe implemented his message passing
-ideas that he got from Smalltalk as Prolog library.
+And that's the story of how Erlang started, Joe implemented his ideas on how to
+improve PLEX in Prolog.
 
 Kerstin Ödling, one of the first Erlang user, wanted to program MD110 telephone
-switch, fishbone diagrams (finite state machine without cycles), execute lots of
-them in parallel
-  - https://vimeo.com/97329186 (18:00)
+switch.
+
+She was using fishbone diagrams (finite state machine without cycles) like
+these[^0] to describe telephony services (I'm imagining these being something
+like telephone APIs):
 
 ![Kerstin's fishbone diagrams](images/fishbone-diagram.png)
+
+I suppose they didn't have cycles, if you wanted to "go back" you'd simply hang
+up and call again.
+
+Here's the direct translation of her diagram into Joe's telephony algebra
+written in Prolog:
 
 Kerstin's fishbone diagram in the Prolog library version of Erlang:
 
 ![](images/prolog-erlang.png)
+
+The diagrams describe one "session", there were hundreds of thousands of these
+happening in parallel.
 
 These messages are sent between "processes", or lightweight threads (as opposed
 to heavyweight OS-level threads). The processes are isolated, in that if one
@@ -441,3 +456,6 @@ to do with lightweigt processes and message passing.
     have the same parameters. Or you can be less well-typed by removing the
     parameters from `GenServer` and simply use some generic but fixed type, like
     type type of JSON objects.
+
+[^0]: Kerstin's fishbone diagams and Prolog implementation are taken from the
+    following [talk](https://vimeo.com/97329186) (18:00) by Joe.
