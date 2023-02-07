@@ -123,8 +123,8 @@ The Smalltalk machine arrived, but Joe didn't even plug it in...
 And that's the story of how Erlang started, Joe implemented his ideas on how to
 improve PLEX in Prolog.
 
-Kerstin Ödling, one of the first Erlang user, wanted to program MD110 telephone
-switch.
+Kerstin Ödling, one of the first Erlang user, wanted to program the MD110
+telephone switch.
 
 She was using fishbone diagrams (finite state machine without cycles) like
 these[^0] to describe telephony services (I'm imagining these being something
@@ -160,6 +160,10 @@ gets stuck, waiting for a message or I/O, or it reaches some max running time,
 at which point it will be switched out and another process will be allowed to
 run. Hence even if a process is stuck in an infinite loop, it will not cause any
 other process to be stuck.
+
+Given Erlang's use case at Ericsson, how Ericsson's hardware already had process
+isolation, and Joe's background in physics it seems quite natural to opt for the
+lightweight process and message passing approach.
 
 Having explained what lightweight processes and message passing is in Erlang,
 lets just note that similar concepts in other languages: Scala's Akka, Go
@@ -230,45 +234,96 @@ Lastly we terminate our counter as follows:
 The three functions, `Step`, `Init` and `Terminate`, together implement the
 `GenServer` interface.
 
+Using the `Step` function we can define a `Run` function which takes an intial
+state and a asequence of `Input`s , it applies the `Step` function to the first
+input and the initial state, takes the resulting state and `Step`s the second
+input with it and so on, until it reaches the last input then it returns the
+`Output`.
+
+Using the `Run` function we can write some unit tests:
+
+> `Run` applied to the inital state `0` and the sequence of `Input`s:
+>   * `[Increment, Increment, Read]` should return `Value 2`;
+>   * `[Increment, Increment]` should return `Ack`;
+>   * `[Increment, Reset, Read]` should return `Value 0`;
+>   * `[Reset, Reset, Read]` should crash (because of our deliberate bug in
+>     `Step`).
+
 ## The concurrent infrastructure for a single generic server
 
 Before we make things more complicated by introducing other behaviours than
 `gen_server`, lets see how we can get the concurrent server from merely using
 our sequential `GenServer` interface.
 
-> data type `Event` is a tagged union with the tags:
->   * `Input` with a `ByteString` parameter;
->   * `Exit`.
-
-> function `eventLoop` is parametrised by *genServer* of type `GenServer` and is
-> defined in steps:
->   1. XXX:...
-
-* Example interaction with our gen server
-
-Hopefully by now I've managed to convince you that we can, at least, implement
-the `gen_server` behaviour without using lightweight processes or message
-passing.
-
-* event loop (or game loop), event-driven program, reactor pattern are all
-  different names for the same well known alternatives to lightweight
-  processes/threads
-
-* Determinstic (unlike lightweight processes, well there's
-  [PULSE](http://quviq.com/documentation/pulse/index.html), OCaml's eio and
-  Java's project Loom has deterministic scheduling I think)
-
-## Supervisor
-
-Next lets have a look at how we can add supervisors.
+Lets introduce a new data type which packs up a few more pieces that we need:
 
 > data type `SomeServer` is a struct with the fields:
 >   * `name`   of type `String`;
 >   * `server` of type `GenServer` where the type parameters *state*, *input*,
 >     and *output* have been existenially quantified[^5];
 >   * `state`  of type *state*.
->   * `decode` of function type `ByteString` to `Maybe` *input*;
+>   * `decode` of partial function type `ByteString` to *input*;
 >   * `encode` of function type *output* to `ByteString`.
+
+> function `EventLoop` is parametrised by *someServer* of type `SomeServer` and is
+> defined in steps:
+>   1. Create a concurrent *queue* of `Event`s;
+>   2. Fork off a new worker thread with the *someServer* and the *queue*;
+>   3. Start a server with the *queue*.
+
+> data type `Event` is a tagged union with the tags:
+>   * `Input` with a `ByteString` parameter and a incoming `Socket` parameter;
+>   * `Exit`.
+
+The server accepts new connections concurrently, reads the incoming request as a
+`ByteString` and enqueues an `Input` to the concurrent *queue* together with the
+`Socket` of the client that made the request.
+
+Have we not just moved the problem of needing lightweight processes from our
+`GenServer` implementation to the concurrent `EventLoop`?
+
+Using one lightweight process (or thread) per client is one way of implementing
+the concurrent server, but we can also use a small fixed number of (heavyweight
+OS-level) threads and a [thread
+pool](https://eli.thegreenplace.net/2017/concurrent-servers-part-2-threads/), or
+a single thread and do [I/O
+multiplexing](https://eli.thegreenplace.net/2017/concurrent-servers-part-3-event-driven/).
+
+The worker thread reads from the *queue*, if it sees an `Input` event it tries
+to `decode`s the `ByteString`, if decoding fails we move on, if it succeeds we
+feed the *input* to the `Step` function of the server together with the current
+`state`. The `state` field gets updated with the new state and the *output* gets
+`encode`d into a `BytesString` and sent back to the client via the `Socket`.
+
+* XXX: Example interaction with our gen server
+> definition `SomeCounter` ...
+> function `Main` ...
+
+Hopefully by now I've managed to convince you that we can, at least, implement
+the `gen_server` behaviour without using lightweight processes or message
+passing.
+
+* The key idea is that the concurrent queue serialises the concurrent requests,
+  so that a single thread can apply the requests one by one in a sequential
+  fashion, similar to how we implemented `Run`.
+
+* Already useful: separates concurrent networking code from the sequential
+  "business logic"
+
+* event loop (or game loop), event-driven program, reactor pattern are all
+  different names for the same well known alternatives to lightweight
+  processes/threads
+
+* One write thread, sqlite
+
+* Timeouts, schedule timer event to yourself, event loop takes care of this
+
+* All in-memory, power loss = data loss, command sourcing or [async writing to
+  disk](https://github.com/stevana/coroutine-state-machines)
+
+## Supervisor
+
+Next lets have a look at how we can add supervisors.
 
 > data type `Supervisor` is a recursive tagged union with the tags:
 >   * `Leaf` with a `SomeServer` parameter (or more generally any worker behaviour);
@@ -278,18 +333,46 @@ Next lets have a look at how we can add supervisors.
 > data type `RestartStrategy` is an enum with the tags `OneForOne` and
 > `OneForAll`.
 
+> definition `SupervisorExample` is of type `Supervisor` and is a `Ǹode` with
+> the restart strategy `OneForOne` and the children:
+>   * `Leaf` with a `SomeCounter`;
+>   * `Leaf` with a `SomeCounter`.
+
+```haskell
+restart :: Name -> Supervisor -> IO Supervisor
+restart _nameOfFailedSM (Worker _) = error "restart: invalid supervisor tree"
+restart nameOfFailedSM sup = case restartStrategy nameOfFailedSM sup of
+  OneForOne -> do
+    ssm' <- restartSM nameOfFailedSM defaultGraceTimeMs (lookupSM nameOfFailedSM sup)
+    return (updateSM nameOfFailedSM ssm' sup)
+  OneForAll -> do
+    mapM_ (\(name, ssm) -> stopSM name defaultGraceTimeMs ssm) sup
+    mapM (\(name, ssm) -> startSM name ssm >>= \ssm' ->
+                          return (name, ssm'))
+```
+
 ## The concurrent infrastructure for supervisor trees
 
-```
-eventLoop(sup: Supervisor):
-  queue := newBoundedConcurrentQueue(QUEUE_MAX_SIZE)
-  forever:
-    event := readQueue(queue)
-    server := sup.lookup(event.receiver)
-    (state', output) := server.step(event.inp)
-```
+> function `EventLoopSup` is parametrised by *sup* of type `Supervisor` and is
+> defined in steps:
+>   1. Create a concurrent *queue* of `Event`s;
+>   2. Fork off a new worker thread with the *sup* and the *queue*;
+>   3. Start a server with the *queue*.
 
-## Performance and generic event manager
+The worker thread reads from the *queue*, if it sees an `Input` event it tries
+to `decode`s the `ByteString`, if decoding fails we move on, if it succeeds we
+feed the *input* to the `Step` function of the server together with the current
+`state`. The `state` field gets updated with the new state and the *output* gets
+`encode`d into a `BytesString` and sent back to the client via the `Socket`.
+
+* try catch around `Step`
+
+
+
+## Generic event manager and performance
+
+* Concurrent queue = [fan-in](https://en.wikipedia.org/wiki/Fan-in)
+* Event manager = fan-out
 
 In a [talk](https://youtu.be/OqsAGFExFgQ?t=2532) at Functional Conf 2017, Martin
 Thompson said:
@@ -331,7 +414,9 @@ Martin has given several full talks on the topic, so I'll not attempt to repeat 
   memory due to the fact that the mailboxes are
   [unbounded](https://github.com/ferd/pobox)
 
-* determinism?
+* Determinstic (unlike lightweight processes, well there's
+  [PULSE](http://quviq.com/documentation/pulse/index.html), OCaml's eio and
+  Java's project Loom has deterministic scheduling I think)
 
 * gen_event -- pubsub / broadcast
 
@@ -348,6 +433,8 @@ Martin has given several full talks on the topic, so I'll not attempt to repeat 
 Recall that an `application` is a `supervisor` tree together with whatever else
 the application needs that is not the code itself, e.g. graphical assets,
 configuration files, etc.
+
+* Supervisor trees have a start up order.
 
 The final behaviour `release` is one or more `application`s together with a way
 of upgrading from the currently running release and a way of rolling back in
@@ -423,8 +510,6 @@ to do with lightweigt processes and message passing.
 * https://github.com/mitchellh/libxev
 
 * [Welcome to Lord of the io_uring](https://unixism.net/loti/index.html)
-
-* https://eli.thegreenplace.net/2017/concurrent-servers-part-1-introduction/
 
 
 [^1]: Technically behaviours are part of the [Open Telecom
