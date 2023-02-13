@@ -14,16 +14,17 @@ In short: Erlang's six behaviours, `gen_server`, `gen_statem`, `gen_event`,
 distributed systems. They abstract away the repetitive, difficult, low-level and
 concurrent details, and let the user focus on the semantics of their problem.
 
-In Joe's own words: "Behaviors in Erlang can be thought of as parameterizable
-higher-order parallel processes. They represent an extension of conventional
-higher-order functions (like map, fold etc) into a concurrent domain."
+In Joe Armstrong's own words: "Behaviors in Erlang can be thought of as
+parameterizable higher-order parallel processes. They represent an extension of
+conventional higher-order functions (like map, fold etc) into a concurrent
+domain."
 
 Many comments, including [one](https://news.ycombinator.com/item?id=34558745)
 from Robert Virding[^2], basically claim that one *needs* lightweight processes
 and message passing in order to implement behaviours.
 
-Conceptually lightweight processes and message passing came before behaviours,
-as Robert points out.
+Conceptually lightweight processes and message passing came before behaviours
+after all, as Robert points out.
 
 I can imagine that perhaps Erlang's concurrency model makes it easier to
 implement behaviours.
@@ -127,7 +128,7 @@ Kerstin Ödling, one of the first Erlang user, wanted to program the MD110
 telephone switch.
 
 She was using fishbone diagrams (finite state machine without cycles) like
-these[^0] to describe telephony services (I'm imagining these being something
+these[^4] to describe telephony services (I'm imagining these being something
 like telephone APIs):
 
 ![Kerstin's fishbone diagrams](images/fishbone-diagram.png)
@@ -209,7 +210,7 @@ and it can be incremented, its current value can be read, or it can be reset:
 The output of the counter when incrementing and resetting is an acknowledgement
 while reading the current value returns an integer.
 
-> data type `Output` is a tagged union[^4] with the tags `Ack` and `Value` where
+> data type `Output` is a tagged union[^5] with the tags `Ack` and `Value` where
 > `Value` has an `Integer` parameter.
 
 The implementation of the `Step` function is a completely sequential program:
@@ -260,7 +261,7 @@ Lets introduce a new data type which packs up a few more pieces that we need:
 > data type `SomeServer` is a struct with the fields:
 >   * `name`   of type `String`;
 >   * `server` of type `GenServer` where the type parameters *state*, *input*,
->     and *output* have been existenially quantified[^5];
+>     and *output* have been existenially quantified[^6];
 >   * `state`  of type *state*.
 >   * `decode` of partial function type `ByteString` to *input*;
 >   * `encode` of function type *output* to `ByteString`.
@@ -338,51 +339,84 @@ Next lets have a look at how we can add supervisors.
 >   * `Leaf` with a `SomeCounter`;
 >   * `Leaf` with a `SomeCounter`.
 
-```haskell
-restart :: Name -> Supervisor -> IO Supervisor
-restart _nameOfFailedSM (Worker _) = error "restart: invalid supervisor tree"
-restart nameOfFailedSM sup = case restartStrategy nameOfFailedSM sup of
-  OneForOne -> do
-    ssm' <- restartSM nameOfFailedSM defaultGraceTimeMs (lookupSM nameOfFailedSM sup)
-    return (updateSM nameOfFailedSM ssm' sup)
-  OneForAll -> do
-    mapM_ (\(name, ssm) -> stopSM name defaultGraceTimeMs ssm) sup
-    mapM (\(name, ssm) -> startSM name ssm >>= \ssm' ->
-                          return (name, ssm'))
-```
+> function `Restart` takes the *name* (of type `String`) of the `SomeServer`
+> which failed and a `Supervisor` tree and returns a `Supervisor` tree. It's
+> defined in steps:
+>   1. Traverse the supervisor tree and find the `Leaf` which has a `SomeServer`
+>      with matching *name*, lets calls this `SomeServer` *failedServer*;
+>   2. Go up the tree one step in the tree to find the supervisor `Node` and its
+>      `RestartStrategy`, lets call this `Node` *supervisorOfFailed*;
+>   3. By case analysis on the `RestartStrategy`:
+>     - If `OneForOne` then `Terminate` and `Init` *failedServer*;
+>     - If `OneForAll` then traverse the list of child supervisor trees of
+>       *supervisorOfFailed* in depth-first fashion and `Terminate` all
+>       `SomeServer`s, then do another traversal and `Init` all of them again.
 
 ## The concurrent infrastructure for supervisor trees
 
+Since our plan is to be able to deploy several `SomeServer`s arranged in a
+`Supervisor` tree, we need to change the event data type to also include the
+name of which `SomeServer` the `Input` is for.
+
+> data type `EventSup` is a tagged union with the tags:
+>   * `Input` with a name of type `String`, a `ByteString` parameter and a
+>     incoming `Socket` parameter;
+>   * `Exit`.
+
+The event loop for supervisor trees looks the same as before except it's now
+parametrised by a supervisor tree rather than just a single `SomeServer`.
+
 > function `EventLoopSup` is parametrised by *sup* of type `Supervisor` and is
 > defined in steps:
->   1. Create a concurrent *queue* of `Event`s;
+>   1. Create a concurrent *queue* of `EventSup`s;
 >   2. Fork off a new worker thread with the *sup* and the *queue*;
 >   3. Start a server with the *queue*.
 
-The worker thread reads from the *queue*, if it sees an `Input` event it tries
-to `decode`s the `ByteString`, if decoding fails we move on, if it succeeds we
-feed the *input* to the `Step` function of the server together with the current
-`state`. The `state` field gets updated with the new state and the *output* gets
+The difference is in the worker thread. As before it reads from the *queue*, if
+it sees an `Input` event it tries to `decode`s the `ByteString`, if decoding
+fails we move on, if it succeeds we feed the *input* to the `Step` function of
+the server together with the current `state`. It's this `Step` function that is
+the only thing that can fail, so we wrap the call in a try-catch and if it fails we catch the error and call `Restart` on
+
+The `state` field gets updated with the new state and the *output* gets
 `encode`d into a `BytesString` and sent back to the client via the `Socket`.
 
-* try catch around `Step`
+* try to `Step`, if it fails then catch and call `Restart`
 
+* What is catchable might vary between programming languages, ideally we want to
+  be able to catch *any* exception including assertion failures, explicitly
+  signaled errors, undefined or missing functionality, etc.
 
+* example using `SupervisorExample`
+* Why is this effective?
+* Save log that lead up to crash for later debugging
+* Frequently restarted processes further down the tree
 
 ## Generic event manager and performance
 
 * Concurrent queue = [fan-in](https://en.wikipedia.org/wiki/Fan-in)
-* Event manager = fan-out
+* Event manager = fan-out / broadcast / pubsub
 
-In a [talk](https://youtu.be/OqsAGFExFgQ?t=2532) at Functional Conf 2017, Martin
-Thompson said:
+* In Erlang event manager is a process that gets a message in its mailbox and it
+  copies it to the mailboxes of all subscribers to that message
 
-> "If there's one thing I'd say to the Erlang folks, it's you got the stuff
-> right from a high-level, but you need to invest in your messaging
-> infrastructure so it's super fast, super efficient and obeys all the right
-> properties to let this stuff work really well."
+* There's a much more efficient way of doing this that doesn't require any
+  copying (assuming that the broadcast is local, i.e. within the node): LMAX
+  disruptor
 
-Who is this guy and why did he say that?
+* How disruptor works
+  - One worker behaviour per CPU core = parallelism, no copying due to disruptor?
+  - "multi-cast"
+  - batching
+  - pipelining
+  - sharding
+  - Built-in support for back-pressure, unlike in Erlang where you can run out of
+    memory due to the fact that the mailboxes are
+    [unbounded](https://github.com/ferd/pobox)
+  - Determinstic (unlike lightweight processes, well there's
+    [PULSE](http://quviq.com/documentation/pulse/index.html), OCaml's eio and
+    Java's project Loom has deterministic scheduling I think)
+
 
 Martin Thompson is perhaps best known for introducing the concept of *mechanical
 sympathy* in the context of computers.
@@ -406,27 +440,21 @@ Martin has given several full talks on the topic, so I'll not attempt to repeat 
   [written](https://martinfowler.com/articles/lmax.html?ref=wellarchitected#QueuesAndTheirLackOfMechanicalSympathy)
   about this
 
-* LMAX disruptor pipeline
+In a [talk](https://youtu.be/OqsAGFExFgQ?t=2532) at Functional Conf 2017, Martin
+Thompson said:
 
-* One worker behaviour per CPU core = parallelism, no copying due to disruptor?
+> "If there's one thing I'd say to the Erlang folks, it's you got the stuff
+> right from a high-level, but you need to invest in your messaging
+> infrastructure so it's super fast, super efficient and obeys all the right
+> properties to let this stuff work really well."
 
-* Built-in support for back-pressure, unlike in Erlang where you can run out of
-  memory due to the fact that the mailboxes are
-  [unbounded](https://github.com/ferd/pobox)
 
-* Determinstic (unlike lightweight processes, well there's
-  [PULSE](http://quviq.com/documentation/pulse/index.html), OCaml's eio and
-  Java's project Loom has deterministic scheduling I think)
-
-* gen_event -- pubsub / broadcast
 
 * Multicore OCaml's [eio](https://github.com/ocaml-multicore/eio)
   - determinism
   - io_uring
 * TigerBeetleDB's [event loop](https://tigerbeetle.com/blog/a-friendly-abstraction-over-iouring-and-kqueue/)
   - also determinism and io_uring
-
-* What about the original problem of many concurrent state machines?
 
 ## Application and release
 
@@ -472,6 +500,12 @@ to do with lightweigt processes and message passing.
 * Many things missing. Far from reimplementing OTP, but that's not the point. I
   want to understand the ideas behind OTP so that we one day can implement
   something better!
+  - supervisors themselves failing
+  - remote supervisors
+
+- Performance penalty of having a try-catch around `Step`? Is there something
+  clever in the BEAM for how a linked process that dies sends it exception to
+  its supervisor?
 
 * If one worker behaviour per CPU/core then how does supervision work? Links?
 
@@ -484,8 +518,13 @@ to do with lightweigt processes and message passing.
 * Erlang supports upgrading/hot code swapping a behaviour while it's running,
   but what about upgrading clustered Erlang nodes without downtime?
 
+* What about the original problem of many concurrent state machines?
 
 ## See also
+
+* My Haskell
+  [implementation](https://github.com/stevana/supervised-state-machines) of the
+  above pseudo code;
 
 * [A history of Erlang](https://dl.acm.org/doi/10.1145/1238844.1238850) paper
   and talk (scroll down to "supplemental material") by Joe Armstrong (HOPL III,
@@ -506,6 +545,18 @@ to do with lightweigt processes and message passing.
 * [*LMAX - How to Do 100K TPS at Less than 1ms
   Latency*](https://www.infoq.com/presentations/LMAX/) by Martin Thompson (QCon
   2010).
+
+* [*Aeron: Open-source high-performance
+  messaging*](https://www.youtube.com/watch?v=tM4YskS94b0) talk by Martin
+  Thompson (Strange Loop, 2014);
+
+* [*Aeron: What, Why and What
+  Next?*](https://www.youtube.com/watch?v=p1bsloPeBzE) talk by Todd Montgomery
+  (GOTO, 2015);
+
+* [*Cluster Consensus When Aeron Met
+  Raft*](https://www.youtube.com/watch?v=RmheuBo3Cy0) talk by Martin Thompson
+  (Build Stuff, 2018);
 
 * https://github.com/mitchellh/libxev
 
@@ -530,10 +581,13 @@ to do with lightweigt processes and message passing.
     The example I'm most familiar with is ["Cloud
     Haskell"](https://hackage.haskell.org/package/distributed-process).
 
-[^4]: Or enums and structs and potentially union types if your language of
+[^4]: Kerstin's fishbone diagams and Prolog implementation are taken from the
+    following [talk](https://vimeo.com/97329186) (18:00) by Joe.
+
+[^5]: Or enums and structs and potentially union types if your language of
     choice doesn't have [sum types](https://en.wikipedia.org/wiki/Tagged_union).
 
-[^5]: If your language of choice doesn't support [existential
+[^6]: If your language of choice doesn't support [existential
     types](https://en.wikipedia.org/wiki/Type_system#Existential_types), then
     you got the choice of being less generic or less well-typed. One way to be
     less generic is to parametrise the supervisor type by the parameters of the
@@ -541,6 +595,3 @@ to do with lightweigt processes and message passing.
     have the same parameters. Or you can be less well-typed by removing the
     parameters from `GenServer` and simply use some generic but fixed type, like
     type type of JSON objects.
-
-[^0]: Kerstin's fishbone diagams and Prolog implementation are taken from the
-    following [talk](https://vimeo.com/97329186) (18:00) by Joe.
