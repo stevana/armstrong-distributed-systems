@@ -71,9 +71,9 @@ language called
 used to program telephony. PLEX, which first appeared in the 70s, and the
 telephone hardware switches were a heavy influence on Erlang:
 
-  1. Process and their isolation from each other
-  2. Signals and ability to wait for them, i.e. message passing
-  3. Hot code swapping
+  1. Process and their isolation from each other;
+  2. Signals and ability to wait for them, i.e. message passing;
+  3. Hot code swapping.
 
 So the early inspiration for Erlang was to be a better version of PLEX and run
 on ordinary hardware.
@@ -85,13 +85,13 @@ Alan said that the [big
 idea](http://lists.squeakfoundation.org/pipermail/squeak-dev/1998-October/017019.html)
 in Smalltalk is message passing after all.
 
-Alan, who did a BSc in mathematics and molecular biology, said:
+Alan, who did a BSc in mathematics and molecular biology,
+[said](http://userpage.fu-berlin.de/~ram/pub/pub_jf47ht81Ht/doc_kay_oop_en):
 
 > I thought of objects being like biological cells and/or individual computers
 > on a network, only able to communicate with messages (so messaging came at the
 > very beginning -- it took a while to see how to do messaging in a programming
 > language efficiently enough to be useful).
--- Alan Kay (http://userpage.fu-berlin.de/~ram/pub/pub_jf47ht81Ht/doc_kay_oop_en)
 
 (Smalltalk was also influenced by
 [Simula](https://dl.acm.org/doi/abs/10.1145/365813.365819), but I don't know
@@ -112,14 +112,15 @@ Joe even ordered the first Tektronix Smalltalk
 in hope of it making things faster.
 
 Parallel to the Smalltalk experiments Joe was also developing an algebra for
-telephony (a domain specific language using mathematical notation).
+telephony (i.e. a domain specific language using mathematical notation).
 
 While Joe was waiting for his Smalltalk machine to arrive, he got chatting with
 a guy called Roger Skagervall and showed him his algebra, Roger asked Joe if he
 had seen Prolog. Joe had not, so Roger pulled him into his office and showed him
 how to implement his algebra in Prolog.
 
-The Smalltalk machine arrived, but Joe didn't even plug it in...
+The (probably quite expensive) Smalltalk machine arrived, but Joe didn't even
+plug it in...
 
 And that's the story of how Erlang started, Joe implemented his ideas on how to
 improve PLEX in Prolog.
@@ -158,9 +159,9 @@ that takes a very long time or ends up getting stuck in an infinite loop.
 
 That's why Erlang has pre-emptive scheduling, a process will be run until it
 gets stuck, waiting for a message or I/O, or it reaches some max running time,
-at which point it will be switched out and another process will be allowed to
-run. Hence even if a process is stuck in an infinite loop, it will not cause any
-other process to be stuck.
+at which point it will be switched out by the scheduler and another process will
+be allowed to run. Hence even if a process is stuck in an infinite loop, it will
+not cause any other process to be stuck.
 
 Given Erlang's use case at Ericsson, how Ericsson's hardware already had process
 isolation, and Joe's background in physics it seems quite natural to opt for the
@@ -269,7 +270,8 @@ Lets introduce a new data type which packs up a few more pieces that we need:
 > function `EventLoop` is parametrised by *someServer* of type `SomeServer` and is
 > defined in steps:
 >   1. Create a concurrent *queue* of `Event`s;
->   2. Fork off a new worker thread with the *someServer* and the *queue*;
+>   2. Fork off a new worker (heavyweight) thread with the *someServer* and the
+>      *queue*;
 >   3. Start a server with the *queue*.
 
 > data type `Event` is a tagged union with the tags:
@@ -376,7 +378,9 @@ The difference is in the worker thread. As before it reads from the *queue*, if
 it sees an `Input` event it tries to `decode`s the `ByteString`, if decoding
 fails we move on, if it succeeds we feed the *input* to the `Step` function of
 the server together with the current `state`. It's this `Step` function that is
-the only thing that can fail, so we wrap the call in a try-catch and if it fails we catch the error and call `Restart` on
+the only thing that can fail, so we wrap the call in a try-catch and if it fails
+we catch the error and call `Restart` on the supervisor tree with the name of
+the failing worker.
 
 The `state` field gets updated with the new state and the *output* gets
 `encode`d into a `BytesString` and sent back to the client via the `Socket`.
