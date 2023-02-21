@@ -165,7 +165,7 @@ telephone switches (p. 157):
 > gen_fsm. There were 20 supervisors and 6 applications. All this is packaged
 > into one release.
 
-Joe gives several arguments for why behaviour should be used (p. 157-158):
+Joe gives several arguments for why behaviour should be used (pp. 157-158):
 
   1. The application programmer only has to provide the part of the code which
      defines the *semantics* (or "business logic") of their problem, while the
