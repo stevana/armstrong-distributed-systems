@@ -6,7 +6,7 @@ status: Still in research (please don't share)
 
 - We all know it takes practice to become good at something.
 
-- Yet most programmers don't practice at all.
+- Yet most programmers don't practice at all[^1].
 
 - If you look up the word *practice* in the dictionary it says: "the act of
   doing something regularly or repeatedly to improve your skill at doing it".
@@ -44,6 +44,21 @@ status: Still in research (please don't share)
   done with English and at that stage it went like bingo -- I can write!"
   https://vimeo.com/1344065 (8:30)
 
+- "total rewrite in less than a week, a one language feature is what you could
+  write in one work session, if you could get it out of your brain, code it and
+  it didn't work then you didn't do it" --
+  https://dl.acm.org/action/downloadSupplement?doi=10.1145%2F1238844.1238850&file=m6-armstrong-h.mov
+  (17:10)
+
+- "We need to break systems down into small understandable components with
+  message passing between them and with contracts describing whats going on
+  between them so we can understand them, otherwise we just won't be able to
+  make software that works. I think the limit of human understandability is
+  something like 128KB of code in any language. So we really need to box things
+  down into small units of computation and formally verify them and the
+  protocols in particular." -- Joe, (React Conf, 2014)
+  https://youtu.be/rQIE22e0cW8?t=3492
+
 - "Throw away any code that isn't finished after a day. It's garbage anyway." --
   Joe Armstrong (https://twitter.com/sadisticsystems/status/1367399917573070851)
 
@@ -74,6 +89,9 @@ status: Still in research (please don't share)
   built." -- [A Plea for Lean Software](https://cr.yp.to/bib/1995/wirth.pdf) by
   Niklaus Wirth (1995)
 
+- Joe story about new manager asking for somebody who can explain the whole
+  system to him. Reference?
+
 - Forth, bounded by blocks: "Disk memory is divided into units called “blocks.”
   Each block holds 1,024 characters of source text or binary data, traditionally
   organized as 16 lines of 64 characters."
@@ -83,6 +101,13 @@ status: Still in research (please don't share)
   designed to be easily reimplementable on new hardware (this was back when new
   CPUs had new instruction sets), he also iterated on the Forth itself (...,
   colorForth, what where the earlier iterations?)
+
+- "Instead of being rewritten, software has features added. And becomes
+  more complex. So complex that no one dares change it, or improve it,
+  for fear of unintended consequences. But adding to it seems relatively
+  safe. We need dedicated programmers who commit their careers to single
+  applications. Rewriting them over and over until they're perfect." --
+  Chuck Moore, 2009
 
 - Role of practice in software development (as opposed to programming)?
   Processes and ways of working based on practice? Refactor vs rewrite from
@@ -116,3 +141,8 @@ status: Still in research (please don't share)
 
 * Any references in the same general (or completely opposite) direction would be
   appreciated!
+
+[^1]: Which is of course fine, one doesn't have to always strive to get better
+    at things, especially programming, there's more important things in life.
+    This is more pointed towards the people who do aspire to get better at at,
+    for whatever reason they might have.
