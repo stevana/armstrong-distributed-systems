@@ -492,18 +492,19 @@ have.
 There are a bunch of related ideas that I have started working on:
 
   * Stealing ideas from Martin Thompson's work on the LMAX Disruptor and
-    [aeron](https://github.com/real-logic/aeron) to make a fast event loop, on
-    top of which the behaviours run;
+    [aeron](https://github.com/real-logic/aeron) to
+    [make](https://github.com/stevana/pipelined-state-machines) a fast event
+    loop, on top of which the behaviours run;
   * Enriching the state machine type with [async
     I/O](https://github.com/stevana/coroutine-state-machines);
-  * How to implement supervisors in more detail;
-  * Hot code swapping of state machines.
+  * How to implement
+    [supervisors](https://github.com/stevana/supervised-state-machines) in more
+    detail;
+  * Hot code [swapping](https://github.com/stevana/hot-swapping-state-machines)
+    of state machines.
 
-I hope to write about these things separately at some later point.
-
-Meanwhile feel free to get in touch, if you find any of this interesting and
-would like to get involved, or if you have have comments, suggestions or
-questions.
+Feel free to get in touch, if you find any of this interesting and would like to
+get involved, or if you have have comments, suggestions or questions.
 
 ## See also
 
