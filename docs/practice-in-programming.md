@@ -142,6 +142,10 @@ status: Still in research (please don't share)
 * Any references in the same general (or completely opposite) direction would be
   appreciated!
 
+* [Coding dojos](https://codingdojo.org/practices/WhatIsCodingDojo/) are spaces
+  specifically designed for _practicing_.
+
+
 [^1]: Which is of course fine, one doesn't have to always strive to get better
     at things, especially programming, there's more important things in life.
     This is more pointed towards the people who do aspire to get better at at,
