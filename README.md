@@ -24,7 +24,7 @@ reasons I'm writing this down is to find people to collaborate with.
   machines](https://github.com/stevana/armstrong-distributed-systems/blob/modular-state-machines/docs/modular-state-machines.md)
 
 * Implementing `gen_event` using the LMAX disruptor
-  - Pipelines as arrows?
+  - https://github.com/stevana/pipelined-state-machines
   - Shard on: "people, stuff or deals",
     [says](https://youtu.be/1KRYH75wgy4?t=2781) Martin Thompson.
 
@@ -70,6 +70,13 @@ reasons I'm writing this down is to find people to collaborate with.
 * [Deploying and restarting state machines using supervisor
   trees](https://github.com/stevana/supervised-state-machines)
 
+* Elasticity and scalability
+  - https://www.youtube.com/watch?v=BOKqGPWXwk0
+  - [SEDA: An Architecture for Well-Conditioned Scalable Internet
+    Services](https://people.eecs.berkeley.edu/~brewer/papers/SEDA-sosp.pdf)
+  - https://people.eecs.berkeley.edu/~brewer/papers/SEDA-sosp.pdf
+  - Did something else supersede SEDA yet?
+
 ## Observability
 
 * Logs
@@ -84,6 +91,10 @@ reasons I'm writing this down is to find people to collaborate with.
   - Martin Thompson also [says](https://youtu.be/1KRYH75wgy4?t=411) "step through
     your code using a debugger".
 * Idea: Record inputs (and states) in circular buffer, dump to disk/SQLite db on error
+
+* The history of [time traveling
+  debuggers](http://jakob.engbloms.se/archives/1564)
+* [Tomorrow Corporation Tech Demo](https://www.youtube.com/watch?v=72y2EC5fkcE)
 
 ## Upgrading
 
