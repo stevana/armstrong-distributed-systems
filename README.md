@@ -71,7 +71,7 @@ reasons I'm writing this down is to find people to collaborate with.
   trees](https://github.com/stevana/supervised-state-machines)
 
 * [Elastically scalable thread
-  pools](https://github.com/stevana/elastically-scalable-thread-pool)
+  pools](https://github.com/stevana/elastically-scalable-thread-pools)
 
 ## Observability
 
