@@ -70,12 +70,8 @@ reasons I'm writing this down is to find people to collaborate with.
 * [Deploying and restarting state machines using supervisor
   trees](https://github.com/stevana/supervised-state-machines)
 
-* Elasticity and scalability
-  - https://www.youtube.com/watch?v=BOKqGPWXwk0
-  - [SEDA: An Architecture for Well-Conditioned Scalable Internet
-    Services](https://people.eecs.berkeley.edu/~brewer/papers/SEDA-sosp.pdf)
-  - https://people.eecs.berkeley.edu/~brewer/papers/SEDA-sosp.pdf
-  - Did something else supersede SEDA yet?
+* [Elastically scalable thread
+  pools](https://github.com/stevana/elastically-scalable-thread-pool)
 
 ## Observability
 
@@ -95,6 +91,7 @@ reasons I'm writing this down is to find people to collaborate with.
 * The history of [time traveling
   debuggers](http://jakob.engbloms.se/archives/1564)
 * [Tomorrow Corporation Tech Demo](https://www.youtube.com/watch?v=72y2EC5fkcE)
+* https://werat.dev/blog/what-a-good-debugger-can-do/
 
 ## Upgrading
 
