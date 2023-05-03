@@ -20,8 +20,7 @@ reasons I'm writing this down is to find people to collaborate with.
 * [Implementing
   behaviours](https://github.com/stevana/armstrong-distributed-systems/blob/implementing-behaviours/docs/implementing-behaviours.md)
 
-* [Modular state
-  machines](https://github.com/stevana/armstrong-distributed-systems/blob/modular-state-machines/docs/modular-state-machines.md)
+* [Modular state machines](docs/modular-state-machines.md)
 
 * Implementing `gen_event` using the LMAX disruptor
   - https://github.com/stevana/pipelined-state-machines
