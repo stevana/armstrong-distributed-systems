@@ -80,17 +80,7 @@ reasons I'm writing this down is to find people to collaborate with.
 
 ## Debugging
 
-* Motivation:
-  - John Carmack on using
-    [debuggers](https://www.youtube.com/watch?v=tzr7hRXcwkw);
-  - Martin Thompson also [says](https://youtu.be/1KRYH75wgy4?t=411) "step through
-    your code using a debugger".
-* Idea: Record inputs (and states) in circular buffer, dump to disk/SQLite db on error
-
-* The history of [time traveling
-  debuggers](http://jakob.engbloms.se/archives/1564)
-* [Tomorrow Corporation Tech Demo](https://www.youtube.com/watch?v=72y2EC5fkcE)
-* https://werat.dev/blog/what-a-good-debugger-can-do/
+* [Domains-specific debuggers](docs/domain-specific-debuggers.md)
 
 ## Upgrading
 
