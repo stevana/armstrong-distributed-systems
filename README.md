@@ -44,7 +44,7 @@ reasons I'm writing this down is to find people to collaborate with.
 
 ## Documentation
 
-* Specification language
+* [Specification language](docs/specification-language.md)
   - Interfaces
   - Messages
   - Compression
