@@ -20,8 +20,7 @@ reasons I'm writing this down is to find people to collaborate with.
 * [Implementing
   behaviours](https://github.com/stevana/armstrong-distributed-systems/blob/implementing-behaviours/docs/implementing-behaviours.md)
 
-* [Modular state
-  machines](https://github.com/stevana/armstrong-distributed-systems/blob/modular-state-machines/docs/modular-state-machines.md)
+* [Modular state machines](docs/modular-state-machines.md)
 
 * Implementing `gen_event` using the LMAX disruptor
   - https://github.com/stevana/pipelined-state-machines
@@ -45,7 +44,7 @@ reasons I'm writing this down is to find people to collaborate with.
 
 ## Documentation
 
-* Specification language
+* [Specification language](docs/specification-language.md)
   - Interfaces
   - Messages
   - Compression
@@ -70,12 +69,8 @@ reasons I'm writing this down is to find people to collaborate with.
 * [Deploying and restarting state machines using supervisor
   trees](https://github.com/stevana/supervised-state-machines)
 
-* Elasticity and scalability
-  - https://www.youtube.com/watch?v=BOKqGPWXwk0
-  - [SEDA: An Architecture for Well-Conditioned Scalable Internet
-    Services](https://people.eecs.berkeley.edu/~brewer/papers/SEDA-sosp.pdf)
-  - https://people.eecs.berkeley.edu/~brewer/papers/SEDA-sosp.pdf
-  - Did something else supersede SEDA yet?
+* [Elastically scalable thread
+  pools](https://github.com/stevana/elastically-scalable-thread-pools)
 
 ## Observability
 
@@ -85,16 +80,7 @@ reasons I'm writing this down is to find people to collaborate with.
 
 ## Debugging
 
-* Motivation:
-  - John Carmack on using
-    [debuggers](https://www.youtube.com/watch?v=tzr7hRXcwkw);
-  - Martin Thompson also [says](https://youtu.be/1KRYH75wgy4?t=411) "step through
-    your code using a debugger".
-* Idea: Record inputs (and states) in circular buffer, dump to disk/SQLite db on error
-
-* The history of [time traveling
-  debuggers](http://jakob.engbloms.se/archives/1564)
-* [Tomorrow Corporation Tech Demo](https://www.youtube.com/watch?v=72y2EC5fkcE)
+* [Domains-specific debuggers](docs/domain-specific-debuggers.md)
 
 ## Upgrading
 
