@@ -136,6 +136,7 @@ status: Still in research (please don't share)
   See chapter 4 of *Development and Deployment of Multiplayer Online Games, Vol.
   II* by Sergey Ignatchenko (2020).
 
+* "What I cannot create, I do not understand" -- Richard Feynman
 
 ## Contributing
 

@@ -39,8 +39,7 @@ reasons I'm writing this down is to find people to collaborate with.
   - [Efficient Tree-Traversals: Reconciling Parallelism and
     Dense](https://arxiv.org/pdf/2107.00522.pdf)
 
-* [On the role of practice in
-  programming](https://github.com/stevana/armstrong-distributed-systems/blob/practice-in-programming/docs/practice-in-programming.md)
+* [On the role of practice in programming](docs/practice-in-programming.md)
 
 ## Documentation
 
