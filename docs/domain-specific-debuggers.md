@@ -11,7 +11,9 @@ status: research (please don't share)
 * Theory: people who use general purpose debuggers also care about memory layout, e.g.:
 
   - John Carmack on using
-  [debuggers](https://www.youtube.com/watch?v=tzr7hRXcwkw);
+  [debuggers](https://www.youtube.com/watch?v=tzr7hRXcwkw) and his old
+  [.plan](https://github.com/oliverbenns/john-carmack-plan/blob/53c00aedaeeb23dee06b28ba985c3b3b4d61107c/archive/1998-10-14.md)
+  (1998);
 
   - Martin Thompson also [says](https://youtu.be/1KRYH75wgy4?t=411) "step
     through your code using a debugger".
@@ -60,3 +62,7 @@ status: research (please don't share)
 * [Visualising application state](https://youtu.be/-HhI3BEIqWw?t=1199)
 
 * Command sourcing
+
+* Jamie Brandon's post [*Local state is
+  harmful*](https://www.scattered-thoughts.net/writing/local-state-is-harmful/)
+  (2014)
