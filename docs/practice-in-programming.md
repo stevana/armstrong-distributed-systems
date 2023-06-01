@@ -12,7 +12,7 @@ perhaps most common explaination is that the field is still young and we haven't
 figured out how to engineer things with the same degree of accurency and
 predicability as other more established fields. A less common explaination,
 which I'd like to explore in this post, is that just because we go to work and
-program for a whole day it doesn't mean that we are in fact practicing.
+program the whole day long it doesn't mean that we are in fact practicing.
 
 ## Defining practice
 
@@ -43,11 +43,11 @@ example, most of us probably need to practice on something much smaller.
 
 ## Putting practice into a practice
 
-Having established what we mean by practice, let's turn our attention to have to
+Having established what we mean by practice, let's turn our attention to how to
 put practice into a practice.
 
-Joe Armstrong is one of these people. He
-[explained](https://vimeo.com/1344065#t=8m30s) that he often wrote a piece of
+Joe Armstrong is a good example. He
+[explains](https://vimeo.com/1344065#t=8m30s) that he often wrote a piece of
 code and the next day he threw it away and rewrote it from scratch. In the early
 days of Erlang it was possible to do a total rewrite of the whole language in
 less than a week. New language features were added in one work session, if you
@@ -128,9 +128,42 @@ something in similar:
 
 ## Processes and tools that encourage practice?
 
-- Role of practice in software development (as opposed to programming)?
-  Processes and ways of working based on practice? Refactor vs rewrite from
-  scratch debate?
+- Let's assume that Mike, Joe, Chuck, Tony and Niklaus are on to something and
+  that it's in fact possible to *designing for practice* even in team-sized
+  projects (aka software development as opposed to programming)
+
+- What would processes and tools that help encourge such development look like?
+
+### The status quo
+
+- TDD: write test that fails, simplest possilbe implementation that makes test
+  pass, then refactor *incrementally* until satisfactory while keeping tests
+  green.
+  + start from scratch rather than refactor?
+  + time limit (e.g. Joe's one working session)
+  + size limit (e.g. Joe's 128KB?)
+  + test-driven design: easily testable system is well-designed system
+  + practice-driven design: easily rewritable system is a well-designed system?
+    * the fact that a system is easily and fully testable surely helps when
+      rewriting from scratch, but it feels like there's more to it?
+    * good spec / documentation / literate programming? Joe's "the research"
+    * ability to "zoom" in and out on spec / docs? Refinement.
+
+- Refactor vs rewrite from scratch debate?
+
+- diy vs 3rd party: http://ithare.com/overused-code-reuse/
+  + https://lobste.rs/s/yubtob/build_vs_buy
+  + https://www.joelonsoftware.com/2001/10/14/in-defense-of-not-invented-here-syndrome/
+  + https://eli.thegreenplace.net/2017/benefits-of-dependencies-in-software-projects-as-a-function-of-effort/
+  + See chapter 4 of *Development and Deployment of Multiplayer Online Games,
+    Vol. II* by Sergey Ignatchenko (2020).
+
+### Possible tricks to steal
+
+- Parallel and independent development, c.f. Dave Snowden and [wisdom of the
+  crowd](https://en.wikipedia.org/wiki/Wisdom_of_the_crowd)
+
+- Encourage new team members to rewrite?
 
 - What would programming languages look like if we applied these principles?
   Forth is a good example, are there others?
@@ -139,6 +172,14 @@ something in similar:
   Each block holds 1,024 characters of source text or binary data, traditionally
   organized as 16 lines of 64 characters."
   https://www.forth.com/starting-forth/3-forth-editor-blocks-buffer/
+
+> There is a great similarity between colorForth and classic Forth: 1024-byte
+> blocks. Factoring source code into blocks is equivalent to creating paragraphs
+> in English. It breaks a wall of text into pieces that highlight related ideas.
+> Many Forth implementations abandoned this advantage and organized source into
+> files of arbitrary length. Bad idea. Hugely debated. In addition, the text in
+> a block can be displayed on a monitor without scrolling. A quantized unit of
+> source code all visible at once.
 
 - What about libraries? Can we design building blocks that allow us to build
   reliable, scalable and maintainable systems, in a way such that the building
@@ -154,14 +195,12 @@ something in similar:
 - More important to provide what Joe called "the research" than to provide a
   library?
 
-- diy vs 3rd party: http://ithare.com/overused-code-reuse/
-  + https://lobste.rs/s/yubtob/build_vs_buy
-  + https://www.joelonsoftware.com/2001/10/14/in-defense-of-not-invented-here-syndrome/
-  + https://eli.thegreenplace.net/2017/benefits-of-dependencies-in-software-projects-as-a-function-of-effort/
-  + See chapter 4 of *Development and Deployment of Multiplayer Online Games,
-    Vol. II* by Sergey Ignatchenko (2020).
-
-- "To gain experience, there's no sustitute for one's own programming effort" --
+- "To gain experience, there's no sustitute for one's own programming effort.
+  Organizing a team into managers, designers, programers, analysts and users is
+  detrimental. All should participate (with differing degrees of emphasis) in
+  all aspects of development. In particular, everybody -- including managers --
+  should also be product users for a time. This last measure is the best
+  guarantee to correct mistakes and perhaps also eliminate redundancies." --
   Niklaus Wirth
 
 * "What I cannot create, I do not understand" -- Richard Feynman
