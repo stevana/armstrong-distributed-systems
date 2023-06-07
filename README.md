@@ -86,4 +86,8 @@ reasons I'm writing this down is to find people to collaborate with.
 * [Hot-code swapping à la Erlang with `Arrow`-based state
   machines](https://github.com/stevana/hot-swapping-state-machines)
 
+* [`smarrow-lang`](https://github.com/stevana/smarrow-lang) an experimental
+  programming language where programs are state machines expressed in arrow
+  notation to allow easy hot-code swapping
+
 * Version everything

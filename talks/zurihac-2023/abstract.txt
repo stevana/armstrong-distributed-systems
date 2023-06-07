@@ -1,0 +1,18 @@
+How can we better build reliable, scalable and maintainable computer systems?
+
+In this talk I'd like to argue that one of the main building blocks ought to be
+the humble state machine of type:
+
+    SM state input output = input -> state -> (state, output)
+
+I'll back up my argument with examples of state-of-the-art techniques from
+industry that involve verification, availability and fault-tolerance using state
+machines.
+
+I'll then sketch the other building blocks that I think we need in order to
+"glue" our state machines together as well as means to inspect, debug and
+upgrade and scale running systems.
+
+My hope that by the end of the talk I'll have managed to make you think
+differently about some of the many aspects involved in developing, deploying and
+maintaining distributed systems.
