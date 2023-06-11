@@ -68,8 +68,6 @@ header-includes:
 * `SM state input output = input -> state -> (state, output)`
 * Networking interface
 * Property-based testing, fault injection, discrete-event simulation
-* For more, see
-  \url{https://github.com/stevana/property-based-testing-stateful-systems-tutorial}
 
 # Time-travelling debugger
 
@@ -77,8 +75,6 @@ header-includes:
 * Assuming state machine is deterministic we can recompute the state (and logs!) from the inputs
 * This gives us a way of replaying the execution of a state machine and see how
   its state changes over time
-* For more, see
-  \url{https://github.com/stevana/armstrong-distributed-systems/blob/main/docs/domain-specific-debuggers.md}
 
 
 # Arrow syntax and hot-swappable code
@@ -87,8 +83,6 @@ header-includes:
 * Conal Elliott's compiling to categories (`Arrow` modulo `arr`)
 * CCCs are first-order, i.e. easily seralisable
 * So we can send them over the network and upgrade running state machines without downtime!
-* For more, see \url{https://github.com/stevana/hot-swapping-state-machines} and
-  \url{https://github.com/stevana/smarrow-lang}
 
 # Pipelining of state machines
 
@@ -102,8 +96,6 @@ header-includes:
 * What if each such stage was run on a separate CPU/core? Pipelining!
 * Monitor queue lengths of each stage and shard if stages are slow
 * What's the relation to dataflow and FRP?
-* For more, see \url{https://github.com/stevana/pipelined-state-machines} and
-  \url{https://github.com/stevana/elastically-scalable-thread-pools}
 
 # Modular state machines
 
@@ -112,16 +104,12 @@ header-includes:
 * State machines inside state machines?
 * Hierarchical states?
 * Stack of states / pushdown automaton?
-* For more, see
-  \url{https://github.com/stevana/armstrong-distributed-systems/blob/main/docs/modular-state-machines.md}
 
 # Protocols between communicating state machines
 
 * If we think of state machines as black boxes which provide some API via their inputs
 * Then protocols between two black boxes are sequences of input-output pairs
 * These too can be described using state machines!
-* For more, see
-  \url{https://github.com/stevana/armstrong-distributed-systems/blob/main/docs/specification-language.md}
 
 # Supervisor trees and deployment
 
@@ -131,11 +119,16 @@ header-includes:
 * Supervisors contain restart strategies, i.e. in which order to restart the
   children if one fails
 * Use restart strategy as a means of deployment (start up order)
-* For more, see \url{https://github.com/stevana/supervised-state-machines}
 
 # Contributing
 
-* Also see \url{https://github.com/stevana/armstrong-distributed-systems} for
-  longer elaborations of the above ideas
+* For more, also see:
+  + \url{https://github.com/stevana/armstrong-distributed-systems}
+  + \url{https://github.com/stevana/property-based-testing-stateful-systems-tutorial}
+  + \url{https://github.com/stevana/hot-swapping-state-machines}
+  + \url{https://github.com/stevana/smarrow-lang}
+  + \url{https://github.com/stevana/pipelined-state-machines}
+  + \url{https://github.com/stevana/elastically-scalable-thread-pools}
+  + \url{https://github.com/stevana/supervised-state-machines}
 * If you have any questions or comments, feel free to get in touch!
 * Thanks for listening!
