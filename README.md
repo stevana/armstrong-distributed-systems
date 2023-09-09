@@ -73,9 +73,8 @@ reasons I'm writing this down is to find people to collaborate with.
 
 ## Observability
 
-* Logs
-* Metrics
-* Traces
+* [Visualising datastructures over time using
+  SVG](https://github.com/stevana/svg-viewer-in-svg)
 
 ## Debugging
 
