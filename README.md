@@ -61,6 +61,9 @@ reasons I'm writing this down is to find people to collaborate with.
 
 * Usage model or operational profile
 
+* Performance testing
+  - https://ocw.mit.edu/courses/6-172-performance-engineering-of-software-systems-fall-2018/resources/lecture-10-measurement-and-timing/
+
 * Load/soak testing
 
 ## Deployment

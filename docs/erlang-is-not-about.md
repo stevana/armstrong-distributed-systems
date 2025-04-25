@@ -548,8 +548,10 @@ get involved, or if you have have comments, suggestions or questions.
 
 ## Discussion
 
-* [Hacker News](https://news.ycombinator.com/item?id=34545061)
-* [lobste.rs](https://lobste.rs/s/7dguth/erlang_s_not_about_lightweight_processes)
+* [Hacker News](https://news.ycombinator.com/item?id=34545061) (2023)
+* [Hacker News](https://news.ycombinator.com/item?id=43655221) (2025)
+* [lobste.rs](https://lobste.rs/s/7dguth/erlang_s_not_about_lightweight_processes) (2023)
+* [lobste.rs](https://lobste.rs/s/4fee7y/erlang_s_not_about_lightweight_processes) (2025)
 * [r/programming](https://old.reddit.com/r/programming/comments/10mt6hz/erlangs_not_about_lightweight_processes_and/)
 * [r/haskell](https://old.reddit.com/r/haskell/comments/10mgd0a/erlangs_not_about_lightweight_processes_and/)
 * [r/erlang](https://old.reddit.com/r/erlang/comments/10g0zbg/erlangs_not_about_lightweight_processes_and/)

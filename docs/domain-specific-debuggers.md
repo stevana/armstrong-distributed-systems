@@ -61,8 +61,15 @@ status: research (please don't share)
 
 * [Visualising application state](https://youtu.be/-HhI3BEIqWw?t=1199)
 
+* [Causeway: A message-oriented distributed
+  debugger](https://www.hpl.hp.com/techreports/2009/HPL-2009-78.pdf)
+
 * Command sourcing
 
 * Jamie Brandon's post [*Local state is
   harmful*](https://www.scattered-thoughts.net/writing/local-state-is-harmful/)
   (2014)
+
+* https://firedbg.sea-ql.org/blog/2023-12-12-introducing-firedbg/
+
+* https://werat.dev/blog/learning-about-debuggers/

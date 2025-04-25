@@ -84,4 +84,5 @@ See also:
 * [*Statecharts: A visual formalism for complex
   systems*](http://www.wisdom.weizmann.ac.il/~dharel/SCANNED.PAPERS/Statecharts.pdf)
   by David Harel (1987);
-* [UML state machines](https://en.wikipedia.org/wiki/UML_state_machine).
+* [UML state machines](https://en.wikipedia.org/wiki/UML_state_machine);
+* James Haydon's [Optical machines](https://github.com/jameshaydon/optical-machines).

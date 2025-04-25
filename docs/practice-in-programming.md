@@ -2,15 +2,15 @@
 status: Still in research (please don't share)
 ---
 
-# On the role of practice in programming
+# On the role of practice in software development
 
 ## Motivation
 
-Practice makes perfect, the saying goes. Yet, very dedicated, people appear to
-spend a lifetime programming without producing a masterpiece. Why is that? The
-perhaps most common explaination is that the field is still young and we haven't
-figured out how to engineer things with the same degree of accurency and
-predicability as other more established fields. A less common explaination,
+Practice makes perfect, the saying goes. Yet people, who're very dedicated,
+appear to spend a lifetime programming without producing a masterpiece. Why is
+that? The perhaps most common explaination is that the field is still young and
+we haven't figured out how to engineer things with the same degree of accurency
+and predicability as other more established fields. A less common explaination,
 which I'd like to explore in this post, is that just because we go to work and
 program the whole day long it doesn't mean that we are in fact practicing.
 
@@ -41,7 +41,7 @@ note that John Carmack and the rest of id Software [developing 13 games in a
 year](https://youtu.be/IzqdZAYcwfY?t=540). Early id Software is an extreme
 example, most of us probably need to practice on something much smaller.
 
-## Putting practice into a practice
+## Practice and programming
 
 Having established what we mean by practice, let's turn our attention to how to
 put practice into a practice.
@@ -75,23 +75,17 @@ something in similar:
 > dedicated programmers who commit their careers to single applications.
 > Rewriting them over and over until they're perfect." (2009)
 
-> "... Such people will never exist. The world is too full of more interesting
-> things to do. The only hope is to abandon complex software. Embrace simple.
-> Forget backward compatibility."
+Chuck reimplemented the his Forth many times, in fact he designed Forth to be
+easily reimplementable on new hardware (this was back when new CPUs had new
+instruction sets). Another example is Chuck's OKAD,
+[VLSI](https://en.wikipedia.org/wiki/Very_Large_Scale_Integration) design tools,
+to which he comments:
 
-* Both Joe and Chuck ask for simple systems, so that they can easily be
-  rewritten (i.e. practiced on)
+> "I’ve spent more time with it that any other; have re-written it multiple
+> times; and carried it to a satisfying level of maturity."
 
-- Chuck Moore reimplemented the same Forth many times, in fact Forth was
-  designed to be easily reimplementable on new hardware (this was back when new
-  CPUs had new instruction sets), he also iterated on the Forth itself (...,
-  colorForth, what where the earlier iterations?)
-
-* OKAD, [VLSI](https://en.wikipedia.org/wiki/Very_Large_Scale_Integration)
-  design tools, "I’ve spent more time with it that any other; have re-written it
-  multiple times; and carried it to a satisfying level of maturity."
-
-* John McCarthy's Lisp with its meta-circular implementation?
+It appears both Joe and Chuck ask for simple/small systems, so that they can
+easily be rewritten -- i.e. practiced on.
 
 ## Practice and software engineering
 
@@ -99,6 +93,8 @@ something in similar:
   personal level, what about scaling it up to teams?
 
 - Can whole projects be simple? Here's two Turing award winners who think so:
+  + Erlang falls under software engineering nowadays... rewriteable is more
+    important early on / in the design phase?
 
 - "At last, there breezed into my office the most senior manager of all, a
   general manager of our parent company, Andrew St. Johnston. I was surprised
@@ -133,6 +129,13 @@ something in similar:
   projects (aka software development as opposed to programming)
 
 - What would processes and tools that help encourge such development look like?
+
+- constrained environments? game development, but also consider the demo scene
+  + in music production, the limitations of an instrument fosters creativity?
+
+    "The more constraints one imposes, the more one frees one's
+    self. And the arbitrariness of the constraint serves only to
+    obtain precision of execution." -- Igor Stravinsky
 
 ### The status quo
 
@@ -172,6 +175,11 @@ something in similar:
   Each block holds 1,024 characters of source text or binary data, traditionally
   organized as 16 lines of 64 characters."
   https://www.forth.com/starting-forth/3-forth-editor-blocks-buffer/
+
+- [KRC](https://www.cs.kent.ac.uk/people/staff/dat/krc/) is a simple
+  lazy functional language designed and implemented by David Turner
+  around 1979-81, from the manual: "Note that equations are written
+  one per line".
 
 > There is a great similarity between colorForth and classic Forth: 1024-byte
 > blocks. Factoring source code into blocks is equivalent to creating paragraphs
@@ -222,6 +230,14 @@ something in similar:
 
 * [Coding dojos](https://codingdojo.org/practices/WhatIsCodingDojo/) are spaces
   specifically designed for *practicing*;
+* [Throw away your first draft of your
+  code](https://lobste.rs/s/frgf9r/throw_away_your_first_draft_your_code);
 * [Are We Really
   Engineers?](https://www.hillelwayne.com/post/are-we-really-engineers/);
-* Mike Acton's talk on [Data-Oriented Design](https://youtube.com/watch?v=rX0ItVEVjHc).
+* Mike Acton's talk on [Data-Oriented
+Design](https://youtube.com/watch?v=rX0ItVEVjHc).
+* [Solving the same problem](https://blog.fredrb.com/2023/09/08/same-problem-multiple-times/);
+* [Practising Programming (tratt.net)](https://news.ycombinator.com/item?id=38924310);
+* [Kenny Werner on practice](https://www.youtube.com/watch?v=Rw_8Y0SnnHc).
+* [Holding a program in one's head](https://paulgraham.com/head.html)
+* [Algorithms we develop software by](https://grantslatton.com/software-pathfinding#algorithms-we-develop-software-by)
