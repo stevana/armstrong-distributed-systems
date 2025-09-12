@@ -87,6 +87,17 @@ to which he comments:
 It appears both Joe and Chuck ask for simple/small systems, so that they can
 easily be rewritten -- i.e. practiced on.
 
+XXX: Alan Kay's "T-shirt programming":
+
+  https://www.youtube.com/watch?v=XnDYuQUN4J0
+
+The Unix philosophy as
+[documented](https://archive.org/details/bstj57-6-1899/mode/2up) by Doug
+McIlroy (1978):
+
+> Make each program do one thing well. To do a new job, build afresh rather
+> than complicate old programs by adding new "features".
+
 ## Practice and software engineering
 
 * We've defined pratice, we've seen examples of people who appear to use it on
