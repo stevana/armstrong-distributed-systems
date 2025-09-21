@@ -16,6 +16,8 @@ program the whole day long it doesn't mean that we are in fact practicing.
 
 ## Defining practice
 
+* XXX: https://en.wikipedia.org/wiki/Practice_(learning_method)#Deliberate_practice
+
 Mike Acton gave an [interview](https://youtu.be/qWJpI2adCcs?t=3506) where he
 said that practice starts *from scratch every time*, unlike a project at work or
 as a hobby which builds upon previous work.
